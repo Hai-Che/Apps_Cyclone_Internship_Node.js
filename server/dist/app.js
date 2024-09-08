@@ -21,9 +21,9 @@ const fetchPostWithCategory = (category) => __awaiter(void 0, void 0, void 0, fu
     try {
         console.log(`Fetching category: ${category}`);
         const data = dummyData_1.rawData.filter((i) => i.category === category);
-        return new Promise((res, rej) => {
+        return new Promise((resolve) => {
             setTimeout(() => {
-                res(data);
+                resolve(data);
                 console.log(`Data for ${category}:`, data);
             }, 2000); // Database query cost example
         });

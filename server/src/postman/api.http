@@ -1,0 +1,10 @@
+@url_dev = http://localhost:3000
+### Fetch all posts
+GET {{url_dev}}/posts
+
+### Fetch with single category
+GET {{url_dev}}/posts?category=economy
+
+### Fetch with multiple categories
+GET {{url_dev}}/posts?category=news&category=social
+

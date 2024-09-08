@@ -1,23 +1,23 @@
 import express from "express";
-import { rawData } from "./dummyData";
+import { dummyData } from "./dummyData";
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 app.use(express.json());
 
-const fetchPostWithCategory = async (category) => {
+const fetchPostsWithCategory = async (category: string) => {
   try {
     console.log(`Fetching category: ${category}`);
-    const data = rawData.filter((i) => i.category === category);
-    return new Promise((res, rej) => {
+    const data = dummyData.filter((i) => i.category === category);
+    return new Promise((resolve) => {
       setTimeout(() => {
-        res(data);
+        resolve(data);
         console.log(`Data for ${category}:`, data);
       }, 2000); // Database query cost example
     });
   } catch (error) {
     console.log(error);
-    throw new Error("fetchPostWithCategory failed");
+    throw new Error("fetchPostsWithCategory failed");
   }
 };
 
@@ -25,7 +25,7 @@ const fetchPostsSequentially = async (categories) => {
   try {
     const responseData = [];
     for (const category of categories) {
-      const data = await fetchPostWithCategory(category);
+      const data = await fetchPostsWithCategory(category);
       responseData.push(data);
     }
     console.log("All categories fetched.");
@@ -39,7 +39,7 @@ const fetchPostsSequentially = async (categories) => {
 const fetchPostsInParallel = async (categories) => {
   try {
     const fetchPromises = categories.map((category) =>
-      fetchPostWithCategory(category)
+      fetchPostsWithCategory(category)
     );
     const results = await Promise.all(fetchPromises);
     return results;
@@ -56,8 +56,8 @@ app.get("/posts", async (req, res) => {
       : [req.query.category]
     : ["news", "economy", "social"];
   try {
-    // const data = await fetchPostsSequentially(categories);
-    const data = await fetchPostsInParallel(categories);
+    const data = await fetchPostsSequentially(categories);
+    // const data = await fetchPostsInParallel(categories);
     return res.status(200).json(data);
   } catch (error) {
     console.log(error);
