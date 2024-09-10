@@ -1,10 +1,15 @@
-@url_dev = http://localhost:3000
-### Fetch all posts
-GET {{url_dev}}/posts
+@url_dev = http://localhost:8080/api
+### Create user
+POST {{url_dev}}/register
+Content-Type: application/json
 
-### Fetch with single category
-GET {{url_dev}}/posts?category=economy
+{
+    "username": "haiche",
+    "password": "123",
+    "fullname": "123456",
+    "bod": "19/08/2002",
+    "address": "aaasss"
+}
 
-### Fetch with multiple categories
-GET {{url_dev}}/posts?category=news&category=social
+
 

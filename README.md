@@ -1,107 +1,42 @@
-# Task2: Nodejs: Internal
+# Task3: Pending
 
-## Tìm hiểu libUV.
+#### Tìm hiểu ExpressJS là gì?
 
-#### Khái niệm
+Expressjs là một framework được xây dựng trên nền tảng của Nodejs. Nó cung cấp các tính năng mạnh mẽ để phát triển web hoặc mobile. Expressjs hỗ trợ các method HTTP và midleware tạo ra API vô cùng mạnh mẽ và dễ sử dụng.
+Một số tính năng chính của Expressjs:
 
-`libuv` là một thư viện đa nền tảng được viết bằng C, cung cấp giao diện bất đồng bộ (asynchronous) và hướng sự kiện (event-driven) cho các hoạt động hệ thống như I/O mạng, truy cập file, và quản lý quy trình (process management). `Libuv` được biết đến rộng rãi vì là nền tảng cơ bản cho Node.js, giúp Node.js xử lý các tác vụ I/O một cách bất đồng bộ, từ đó nâng cao hiệu suất và khả năng mở rộng.
+- Phát triển máy chủ nhanh chóng: Expressjs cung cấp nhiều tính năng dưới dạng các hàm để dễ dàng sử dụng ở bất kỳ đâu trong chương trình. Điều này đã loại bỏ nhu cầu viết mã từ đó tiết kiệm được thời gian.
+- Phần mềm trung gian Middleware: Đây là phần mềm trung gian có quyền truy cập vào cơ sở dữ liệu, yêu cầu của khách hàng và những phần mềm trung gian khác. Phần mềm Middleware này chịu trách nhiệm chính cho việc tổ chức có hệ thống các chức năng của Express.js.
+- Định tuyến - Routing: Express js cung cấp cơ chế định tuyến giúp duy trì trạng thái của website với sự trợ giúp của URL.
+- Tạo mẫu - Templating: Các công cụ tạo khuôn mẫu được Express.js cung cấp cho phép các nhà xây dựng nội dung động trên các website bằng cách tạo dựng các mẫu HTML ở phía máy chủ.
+- Gỡ lỗi - Debugging: Để phát triển thành công các ứng dụng web không thể thiết đi việc gỡ lỗi. Giờ đây với Expressjs việc gỡ lỗi đã trở nên dễ dàng hơn nhờ khả năng xác định chính xác các phần ứng dụng web có lỗi.
 
-#### Các thành phần chính của `libuv`:
+#### Tìm hiểu Routing trong ExpressJS?
 
-- `Event-loop`: Chịu trách nhiệm quản lý các sự kiện và xử lý chúng khi chúng được kích hoạt, tiếp tục chạy cho đến khi không còn sự kiện nào cần xử lý. Các sự kiện có thể là các yêu cầu mạng, đọc/ghi file hay các tín hiệu từ hệ điều hành.
-- `Quản lý I/O bất đồng bộ`: Libuv cung cấp API để thực hiện các tác vụ I/O như đọc/ghi file, kết nối mạng mà không làm gián đoạn ứng dụng chính. Điều này được thực hiện thông qua các system call bất đồng bộ.
-- `Timers`: Libuv hỗ trợ các bộ định thời bất đồng bộ, cho phép thực hiện các tác vụ theo lịch trình định trước, chẳng hạn như gọi hàm sau một khoảng thời gian (setTimeOut) hoặc lặp lại một hành động sau các khoảng thời gian đều đặn(setInterval).
-- `Thread Pool`: Libuv sử dụng một nhóm các luồng làm việc (worker threads) để xử lý các tác vụ I/O đồng thời mà không làm tắc nghẽn vòng lặp sự kiện chính.
-- `Quản lý process`: Libuv cung cấp các API để tạo và quản lý các quy trình con, cho phép các tác vụ như phân tách công việc giữa nhiều quy trình hoặc thực hiện các lệnh hệ thống từ bên trong ứng dụng.
-- `Signals`: Libuv cho phép ứng dụng lắng nghe và xử lý các tín hiệu từ hệ điều hành, chẳng hạn như SIGINT, SIGTERM, hoặc SIGHUP.
+Routing trong ExpressJS là quá trình xác định cách thức ứng dụng web phản hồi với các yêu cầu của người dùng đến các URL cụ thể, giúp điều hướng và xử lý các yêu cầu từ người dùng một cách linh hoạt và dễ dàng. Nói cách khác, Routing trong ExpressJS giúp xử lý các yêu cầu HTTP đến các endpoint khác nhau. Express sử dụng các phương thức HTTP như GET, POST, PUT, PATCH, DELETE để định nghĩa route; hỗ trợ các tham số trong URL để tạo ra các route động và ta có thể sử dụng middleware để thực hiện các xử lý chung cho các route.
 
-#### Ứng dụng của `libuv` trong Node.js:
+#### Tìm hiểu Middleware trong ExpressJS ?
 
-- `Non-blocking I/O`: Node.js sử dụng libuv để quản lý tất cả các thao tác I/O bất đồng bộ, cho phép xử lý nhiều yêu cầu cùng một lúc mà không bị chặn.
-- `Kiến trúc Event-driven`: Event loop của libuv cho phép Node.js hoạt động theo mô hình hướng sự kiện, phù hợp với các ứng dụng thời gian thực như máy chủ web, chat servers, hoặc hệ thống thu thập dữ liệu.
-- `Hỗ trợ đa nền tảng`: Libuv giúp Node.js chạy trên nhiều hệ điều hành khác nhau mà không cần phải thay đổi mã nguồn chính của ứng dụng.
+Middleware: là một hàm có thể thực hiện các tác vụ nào đó trên yêu cầu (request) và phản hồi (response) trước khi chúng đến với route handler. Middleware có thể được sử dụng để thực hiện kiểm tra chứng thực (authentication), phân tích thông tin (logging), xử lý lỗi, và nhiều tác vụ khác.
+Middleware trong ExpressJS giúp bạn xử lý các yêu cầu HTTP trước khi chúng được gửi đến route handler cuối cùng.
+Cách khai báo: Là 1 hàm với ba tham số: req, res, và next. Đối với middleware dùng để xử lý lỗi sẽ có thêm 1 tham số err.
+Khi triển khai middleware cần lưu ý đến thứ tự được khai báo để đảm bảo chương trình hoạt động đúng như mong muốn
 
-## Tìm hiểu Sync vs Async.
+#### Tìm hiểu Error Handling ExpressJS ?
 
-- `Synchronous`: Diễn ra tuần tự, các hành động sau sẽ được thực hiện khi tác vụ trước kết thúc.
-- `Asynchronous`: Diễn ra không theo thứ tự, cho phép các tác vụ được bắt đầu và không cần chờ hoàn thành trước khi chuyển sang tác vụ khác. Trong mô hình này, khi một tác vụ đang thực hiện, chương trình có thể tiếp tục xử lý các tác vụ khác. Khi tác vụ bất đồng bộ hoàn thành, một callback, promise, hoặc async/await được sử dụng để xử lý kết quả.
+Error Handling là quá trình xử lý các lỗi xảy ra trong ứng dụng, giúp lập trình viên kiểm soát và phản hồi khi có sự cố xảy ra. Trong ExpressJS, ta có thể xử lý lỗi bằng cách sử dụng middleware.
+ExpressJS có một cách đặc biệt để định nghĩa middleware cho việc xử lý lỗi. Middleware xử lý lỗi có thể được định nghĩa bằng cách thêm 4 tham số: err, req, res, next.
 
-## Cách NodeJS có thể chạy các tác vụ bất đồng bộ.
+<!-- Ex: Viết chức năng tạo người dùng
 
-Để rõ hơn về cách Node.js chạy các tác vụ bất đồng bộ, ta sẽ đi qua 1 ví dụ cụ thể trong hình sau:
+- Input : username / password / fullName / dob / address
 
-[Watch the video](https://cdn.builder.io/o/assets%2FYJIGb4i01jvw0SRdL5Bt%2Fd5131502a8e84dfcab11f1c3820101b7%2Fcompressed?apiKey=YJIGb4i01jvw0SRdL5Bt&token=d5131502a8e84dfcab11f1c3820101b7&alt=media&optimized=true)
+- Validate Input ( Middleware ) :
 
-- Luồng thực thi chính luôn bắt đầu trong phạm vi toàn cục (global scope). Hàm toàn cục (global function) được đẩy lên call stack. Tại 1ms, "First" được log ra console và hàm được đẩy ra call stack. Tại 2ms, phương thức readFile được đẩy lên call stack. Vì readFile là một tác vụ bất đồng bộ, nên nó bị đẩy qua cho libuv.
-- libuv bắt đầu đọc nội dung tệp trên một luồng riêng biệt. Tại 3ms, JavaScript, đẩy hàm log vào call stack, thực thi và đẩy ra khỏi call stack khi kết thúc.
-- Tại 4ms, lúc này tác vụ đọc file đã được hoàn thành tại thread pool. Hàm callback được liên kết được thực hiện trên call stack, "Second" được log ra console và hàm log bị đẩy ra khỏi call stack.
-- Khi không còn code để chạy, hàm global cũng bị đẩy khỏi ngăn xếp. Kết quả cuối cùng từ console là: "First", "Third", và "Second".
-  \
-  Bên cạnh đó về mặt lập trình, ta sử dụng các phương thức như Callback, Promises và async/await để xử lý các tác vụ bất đồng bộ:
-- `Callback`: Phương thức chính trong Node.js để xử lý các tác vụ bất đồng bộ. Khi một tác vụ bắt đầu, thay vì chờ nó hoàn thành, Node.js sẽ chuyển một hàm callback để xử lý kết quả khi tác vụ hoàn thành.
-  Ví dụ:
+1. username : bắt buộc / chuỗi / ít nhất 6 kí tự / chấp nhận chữ + số ( sử dụng regex ).
+2. password : bắt buộc / chuỗi / ít nhất 4 kí tự / phải có chữ + số + kí tự đặc biệt ( sử dụng regex).
+3. fullName : bắt buộc / chuỗi / ít nhất 6 kí tự và dài nhất 64 kí tự / chấp nhận chữ hoa + chữ thường.
+4. dob : không bắt buộc / ngày ( yyyy / mm /dd ).
+5. address : không bắt buộc / chuỗi.
 
-```js
-fs.readFile("file.txt", (err, data) => {
-  if (err) throw err;
-  console.log(data.toString());
-});
-```
-
-- `Promises`: 1 cách tiếp cận khác để xử lý bất đồng bộ, tránh được vấn đề callback hell của Callback
-  Ví dụ:
-
-```js
-fs.promises
-  .readFile("file.txt")
-  .then((data) => console.log(data.toString()))
-  .catch((err) => console.error(err));
-```
-
-- `async/await`: là cú pháp mới hơn trên Promises, giúp viết code bất đồng bộ một cách gọn gàng và dễ hiểu hơn.
-  Ví dụ:
-
-```js
-async function readFile() {
-  try {
-    const data = await fs.promises.readFile("file.txt");
-    console.log(data.toString());
-  } catch (err) {
-    console.error(err);
-  }
-}
-readFile();
-```
-
-## EventLoop.
-
-EventLoop là một chương trình C, chạy liên tục miễn là ứng dụng Node.js vẫn đang hoạt động, xử lý nhiều hoạt động thực thi đồng thời. Có 6 hàng đợi khác nhau trong mỗi vòng lặp, mỗi hàng đợi giữ một hoặc nhiều hàm callback cần được thực thi trên call stack.
-
-![Work flow of node.js](https://cdn.builder.io/api/v1/image/assets%2FYJIGb4i01jvw0SRdL5Bt%2F6b288555862049b4b5cd7f19e2ae909f?format=webp&width=2000)
-
-- Timer queue: Chứa các callback liên quan tới hàm setTimeout và setInterval.
-- I/O queue: Chứa các callback liên quan đến các phương thức async như các phương thức liên quan đến các module fs và http.
-- Check queue: Chứa các callback được liên quan tới hàm setImmediate.
-- Close queue: Chứa các callback được liên quan tới việc đóng sự kiện của các tác vụ bất đồng bộ.
-  Hàng đợi microtask chứa hai hàng đợi riêng biệt.
-- nextTick queue: Chứa các callback được liên quan tới hàm process.nextTick
-- Promise queue: Chứa các callback liên quan tới Promise trong Javascript.
-
-#### Cách event loop hoạt động:
-
-Thứ tự thực hiện:
-
-- Bất kỳ callback trong hàng đợi microtask đều được thực thi. Đầu tiên là các task trong nextTick queue, sau đó là các task trong promise queue.
-- Tất cả callback trong timer queue được thực hiện. Chúng đại diện cho các callback hết hạn chờ và đã sẵn sàng để thực thi.
-- Các callback trong hàng đợi microtask (nếu có) được thực thi sau mỗi callback trong timer queue.
-- Tất cả callback trong I/O queue được thực thi.
-- Các callback trong hàng đợi microtask (nếu có) được thực thi.
-- Tất cả callback trong check queue được thực thi.
-- Các callback trong hàng đợi microtask (nếu có) được thực hiện sau mỗi callback trong check queue.
-- Tất cả callback trong close queue được thực thi.
-- Các callback trong hàng đợi microtask (nếu có) được thực thi.
-
-Nếu có nhiều callback được xử lý vào thời điểm này, vòng lặp sẽ tiếp tục và các bước tương tự được lặp lại. Mặt khác, nếu tất cả các callback được thực thi và không còn mã nào để xử lý, event loop sẽ kết thúc.
-
-Ví dụ minh họa:
-<img src="https://media.licdn.com/dms/image/v2/D4D12AQHAa2zbhYhlWw/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1686229107951?e=1731542400&amp;v=beta&amp;t=V42aq3uIHYn6IW3OqRwH5TARoVX5q-Fg1-xmWZf33B0" loading="lazy" alt="Event Loop Visualizing" id="ember39" class="reader-cover-image__img evi-image lazy-image ember-view">
+- Sử dụng Error Handling ExpressJS để xử lý lỗi. -->
