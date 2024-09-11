@@ -5,10 +5,10 @@ Content-Type: application/json
 
 {
     "username": "haiche",
-    "password": "123",
-    "fullname": "123456",
-    "bod": "19/08/2002",
-    "address": "aaasss"
+    "password": "Abc123;",
+    "fullName": "AAaaaaaa",
+    "dob": "2024-09-11T08:19:10.596+00:00", // test in postman
+    "address": "Ho Chi Minh"
 }
 
 

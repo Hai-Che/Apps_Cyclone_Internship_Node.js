@@ -12,7 +12,7 @@ class Database {
     constructor() {
         this.connect();
     }
-    connect(type = "mongodb") {
+    connect() {
         mongoose_1.default.set("debug", true);
         mongoose_1.default.set("debug", { color: true });
         mongoose_1.default

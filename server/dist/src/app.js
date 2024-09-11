@@ -6,13 +6,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const index_1 = __importDefault(require("./routes/index"));
 const init_mongodb_1 = __importDefault(require("./dbs/init.mongodb"));
+const error_response_1 = require("./core/error.response");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 init_mongodb_1.default;
 app.use("/", index_1.default);
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).send("Something broke!");
+// Catch all 404 error middleware
+app.use((req, res, next) => {
+    const error = new error_response_1.NotFoundError("Not found");
+    next(error);
+});
+// Error handling middleware
+app.use((error, req, res, next) => {
+    const statusCode = error.status || 500;
+    return res.status(statusCode).json({
+        status: "error",
+        code: statusCode,
+        stack: error.stack,
+        message: error.message || "Internal Server Error",
+    });
 });
 exports.default = app;
 //# sourceMappingURL=app.js.map
