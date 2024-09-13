@@ -8,11 +8,12 @@ Transaction là một tiến trình xử lý có xác định điểm đầu và
 
 ##### Kiểu của Transaction:
 
-Flat Transaction – Transaction ngang hàng:
-Việc chia các operation là ngang hàng nhau. Thực thi các operation là tuần tự từ trái sang phải hoặc từ trên xuống dưới.
-Nested Transaction – Transaction lồng nhau:
-Việc thực thi các operation dựa theo nguyên tắc từ trong ra ngoài.
-Các thuộc tính của Transaction:
+- Flat Transaction – Transaction ngang hàng:
+  Việc chia các operation là ngang hàng nhau. Thực thi các operation là tuần tự từ trái sang phải hoặc từ trên xuống dưới.
+- Nested Transaction – Transaction lồng nhau:
+  Việc thực thi các operation dựa theo nguyên tắc từ trong ra ngoài.
+
+##### Các thuộc tính của Transaction:
 
 - Atomicity – tính nguyên tử: Nếu một thành phần nào đó trong transaction thực thi hỏng (fail) thì đồng nghĩa với việc không có gì xảy ra tức không có gì thay đổi về mặt dữ liệu.
 - Consistency – nhất quán: Dữ liệu nhất quán với transaction ở thời điểm bắt đầu và kết thúc.
@@ -42,7 +43,8 @@ Lợi ích của Stored Procedure:
 ##### Khái niệm:
 
 Trigger là một stored procedure không có tham số. Trigger thực thi một cách tự động khi một trong ba câu lệnh Insert, Update, Delete làm thay đổi dữ liệu trên bảng có chứa trigger.
-Cú pháp:
+
+##### Cú pháp:
 
 ```sql
 CREATE TRIGGER tên_trigger ON tên_bảng
@@ -51,19 +53,23 @@ AS
   câu_lệnh_sql
 ```
 
-Ứng dụng:
+##### Ứng dụng:
+
 Trigger thường được sử dụng để kiểm tra ràng buộc (check constraints) trên nhiều quan hệ (nhiều bảng/table) hoặc trên nhiều dòng (nhiều record) của bảng. Ngoài ra việc sử dụng Trigger để chương trình có những hàm chạy ngầm nhằm phục vụ nhưng trường hợp hữu hạn và thường không sử dụng cho mục đích kinh doanh hoặc giao dịch.
 
 Ex:
 Sử dụng mysql tạo Table :
-User: ( userId, username, password , fullName )
-UserAdvance : ( userId, dob, address )
+
+- User: ( userId, username, password , fullName )
+- UserAdvance : ( userId, dob, address )
+
 Viết Stored Procedure :
-Thêm người dùng vào table: User/UserAdvance ( 10 bản ghi )
-Lấy danh sách người dùng ( Lấy hết cột của 2 table và phân trang.)
-Lấy chi tiết người dùng ( Lấy hết cột của 2 table).
-Cập nhật người dùng.
-Xoá người dùng.
+
+- Thêm người dùng vào table: User/UserAdvance ( 10 bản ghi )
+- Lấy danh sách người dùng ( Lấy hết cột của 2 table và phân trang.)
+- Lấy chi tiết người dùng ( Lấy hết cột của 2 table).
+- Cập nhật người dùng.
+- Xoá người dùng.
 
 Tạo database và tables:
 
