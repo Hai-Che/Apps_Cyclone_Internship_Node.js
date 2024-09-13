@@ -111,7 +111,6 @@ DELIMITER ;
 CALL AddUsers();
 ```
 
-Kết quả:
 ![image 1.1](/images/1.1.png)
 ![image 1.2](/images/1.2.png)
 
@@ -173,7 +172,7 @@ CALL GetAllUsersWithDetail();
 
 ![image 3](/images/3.png)
 
-Cập nhật người dùng.
+- Cập nhật người dùng.
 
 ```sql
 DELIMITER $$
@@ -207,7 +206,8 @@ CALL UpdateUser(1, 'new_username1', 'new_password1', 'New Full Name 1', '2000-01
 
 ![image 4.1](/images/4.1.png)
 ![image 4.2](/images/4.2.png)
-Xoá người dùng.
+
+- Xoá người dùng.
 
 ```sql
 DELIMITER $$
