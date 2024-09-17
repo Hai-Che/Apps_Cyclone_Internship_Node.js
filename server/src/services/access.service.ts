@@ -1,24 +1,50 @@
 import { BadRequestError } from "../core/error.response";
-import { findByUsername } from "../models/repositories/user.repo";
-import userModel from "../models/user.model";
+import { User } from "../entities/user.entity";
+import MysqlDataSource from "../dbs/init.mysql";
+import { UserAdvance } from "../entities/userAdvance.entity";
+
+const userRepository = MysqlDataSource.getRepository(User);
+const userAdvanceRepository = MysqlDataSource.getRepository(UserAdvance);
+
 class AccessService {
-  static register = async ({ username, password, fullName, dob, address }) => {
-    const checkUser = await findByUsername(username);
+  static register = async ({
+    userName,
+    uass,
+    uuid,
+    fullName,
+    Email,
+    phoneNumber,
+    address,
+    dob,
+    profileUrl,
+  }) => {
+    const checkUser = await userRepository.findOne({
+      where: { userName },
+    });
     if (checkUser) {
-      console.log(checkUser);
       throw new BadRequestError("Username already existed");
     }
-    const newUser = await userModel.create({
-      username,
+    const newUser = await userRepository.save({
+      userName,
+      uass,
+      uuid,
       fullName,
-      password,
-      dob,
-      address,
+      Email,
+      phoneNumber,
     });
     if (!newUser) {
       throw new BadRequestError("Failed to create user");
     }
-    return { user: newUser };
+    const newUserAdvance = await userAdvanceRepository.save({
+      userId: newUser.userId,
+      address,
+      dob,
+      profileUrl,
+    });
+    if (!newUserAdvance) {
+      throw new BadRequestError("Failed to create user advance");
+    }
+    return { user: newUser, userAdvance: newUserAdvance };
   };
 }
 export default AccessService;

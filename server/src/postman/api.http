@@ -4,12 +4,25 @@ POST {{url_dev}}/register
 Content-Type: application/json
 
 {
-    "username": "haiche",
-    "password": "Abc123;",
-    "fullName": "AAaaaaaa",
-    "dob": "2024-09-11T08:19:10.596+00:00", // test in postman
-    "address": "Ho Chi Minh"
+    "userName": "haiche",
+    "uass": "test1",
+    "uuid": "test2",
+    "fullName": "che lan hai",
+    "Email": "haiche@gmail.com",
+    "phoneNumber": "0208292992",
+    "address": "Ho Chi Minh",
+    # "dob": "{{CurrentDatetime}}",
+    "profileUrl": "test3"
 }
+
+### Get user
+GET {{url_dev}}/user/:id=1
+Content-Type: application/json
+
+### Delete user
+DELETE  {{url_dev}}/user/:id=9
+Content-Type: application/json
+
 
 
 

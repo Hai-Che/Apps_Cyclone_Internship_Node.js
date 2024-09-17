@@ -1,5 +1,6 @@
 import app from "./src/app";
 import "dotenv/config";
+import "reflect-metadata";
 
 const PORT = process.env.PORT || 8080;
 

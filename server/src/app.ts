@@ -1,11 +1,13 @@
 import express from "express";
 import mainRoute from "./routes/index";
-import instanceMongoDB from "./dbs/init.mongodb";
+// import instanceMongoDB from "./dbs/init.mongodb";
+import { instanceMysql } from "./dbs/init.mysql";
 import { NotFoundError } from "./core/error.response";
 const app = express();
 app.use(express.json());
 
-instanceMongoDB;
+// instanceMongoDB;
+instanceMysql;
 
 app.use("/", mainRoute);
 

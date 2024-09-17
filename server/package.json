@@ -6,7 +6,11 @@
     "start": "tsc && node dist/server.js",
     "dev": "tsc && node dist/server.js",
     "lint": "eslint **/*.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "typeorm": "tsc && npx typeorm -d dist/src/dbs/init.mysql.js",
+    "migration:generate": "npm run typeorm -- migration:generate",
+    "migration:run": "npm run typeorm -- migration:run",
+    "migration:revert": "npm run typeorm -- migration:revert"
   },
   "keywords": [],
   "author": "",
@@ -15,14 +19,20 @@
   "devDependencies": {
     "@eslint/js": "^9.9.1",
     "@types/express": "^4.17.21",
+    "@types/node": "^22.5.5",
     "eslint": "^9.9.1",
     "globals": "^15.9.0",
     "typescript": "^5.5.4",
     "typescript-eslint": "^8.4.0"
   },
   "dependencies": {
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "mongoose": "^8.6.1"
+    "mongoose": "^8.6.1",
+    "mysql2": "^3.11.3",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.20"
   }
 }

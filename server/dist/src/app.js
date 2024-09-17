@@ -5,11 +5,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const index_1 = __importDefault(require("./routes/index"));
-const init_mongodb_1 = __importDefault(require("./dbs/init.mongodb"));
+// import instanceMongoDB from "./dbs/init.mongodb";
+const init_mysql_1 = require("./dbs/init.mysql");
 const error_response_1 = require("./core/error.response");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
-init_mongodb_1.default;
+// instanceMongoDB;
+init_mysql_1.instanceMysql;
 app.use("/", index_1.default);
 // Catch all 404 error middleware
 app.use((req, res, next) => {

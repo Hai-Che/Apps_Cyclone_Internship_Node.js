@@ -14,28 +14,42 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const error_response_1 = require("../core/error.response");
-const user_repo_1 = require("../models/repositories/user.repo");
-const user_model_1 = __importDefault(require("../models/user.model"));
+const user_entity_1 = require("../entities/user.entity");
+const init_mysql_1 = __importDefault(require("../dbs/init.mysql"));
+const userAdvance_entity_1 = require("../entities/userAdvance.entity");
+const userRepository = init_mysql_1.default.getRepository(user_entity_1.User);
+const userAdvanceRepository = init_mysql_1.default.getRepository(userAdvance_entity_1.UserAdvance);
 class AccessService {
 }
 _a = AccessService;
-AccessService.register = (_b) => __awaiter(void 0, [_b], void 0, function* ({ username, password, fullName, dob, address }) {
-    const checkUser = yield (0, user_repo_1.findByUsername)(username);
+AccessService.register = (_b) => __awaiter(void 0, [_b], void 0, function* ({ userName, uass, uuid, fullName, Email, phoneNumber, address, dob, profileUrl, }) {
+    const checkUser = yield userRepository.findOne({
+        where: { userName },
+    });
     if (checkUser) {
-        console.log(checkUser);
         throw new error_response_1.BadRequestError("Username already existed");
     }
-    const newUser = yield user_model_1.default.create({
-        username,
+    const newUser = yield userRepository.save({
+        userName,
+        uass,
+        uuid,
         fullName,
-        password,
-        dob,
-        address,
+        Email,
+        phoneNumber,
     });
     if (!newUser) {
         throw new error_response_1.BadRequestError("Failed to create user");
     }
-    return { user: newUser };
+    const newUserAdvance = yield userAdvanceRepository.save({
+        userId: newUser.userId,
+        address,
+        dob,
+        profileUrl,
+    });
+    if (!newUserAdvance) {
+        throw new error_response_1.BadRequestError("Failed to create user advance");
+    }
+    return { user: newUser, userAdvance: newUserAdvance };
 });
 exports.default = AccessService;
 //# sourceMappingURL=access.service.js.map
