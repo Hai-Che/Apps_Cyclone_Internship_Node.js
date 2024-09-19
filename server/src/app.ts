@@ -1,30 +1,17 @@
 import express from "express";
 import mainRoute from "./routes/index";
-// import instanceMongoDB from "./dbs/init.mongodb";
-import { instanceMysql } from "./dbs/init.mysql";
-import { NotFoundError } from "./core/error.response";
+import { initializeDatabase } from "./dbs/dbs";
+import { notFoundHandler, errorHandler } from "./middleware/errorHandler";
 const app = express();
 app.use(express.json());
 
-// instanceMongoDB;
-instanceMysql;
+initializeDatabase();
 
 app.use("/", mainRoute);
 
 // Catch all 404 error middleware
-app.use((req, res, next) => {
-  const error = new NotFoundError("Not found");
-  next(error);
-});
+app.use(notFoundHandler);
 // Error handling middleware
-app.use((error, req, res, next) => {
-  const statusCode = error.status || 500;
-  return res.status(statusCode).json({
-    status: "error",
-    code: statusCode,
-    stack: error.stack,
-    message: error.message || "Internal Server Error",
-  });
-});
+app.use(errorHandler);
 
 export default app;

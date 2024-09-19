@@ -5,28 +5,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const index_1 = __importDefault(require("./routes/index"));
-// import instanceMongoDB from "./dbs/init.mongodb";
-const init_mysql_1 = require("./dbs/init.mysql");
-const error_response_1 = require("./core/error.response");
+const dbs_1 = require("./dbs/dbs");
+const errorHandler_1 = require("./middleware/errorHandler");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
-// instanceMongoDB;
-init_mysql_1.instanceMysql;
+(0, dbs_1.initializeDatabase)();
 app.use("/", index_1.default);
 // Catch all 404 error middleware
-app.use((req, res, next) => {
-    const error = new error_response_1.NotFoundError("Not found");
-    next(error);
-});
+app.use(errorHandler_1.notFoundHandler);
 // Error handling middleware
-app.use((error, req, res, next) => {
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({
-        status: "error",
-        code: statusCode,
-        stack: error.stack,
-        message: error.message || "Internal Server Error",
-    });
-});
+app.use(errorHandler_1.errorHandler);
 exports.default = app;
 //# sourceMappingURL=app.js.map

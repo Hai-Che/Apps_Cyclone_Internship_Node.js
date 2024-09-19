@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const app_1 = __importDefault(require("./src/app"));
 require("dotenv/config");
 require("reflect-metadata");
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.DEV_APP_PORT || 8080;
 const server = app_1.default.listen(PORT, () => {
     console.log(`Server is running on PORT: ${PORT}`);
 });

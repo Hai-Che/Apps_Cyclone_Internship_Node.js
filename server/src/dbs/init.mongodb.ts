@@ -1,5 +1,3 @@
-"use strict";
-
 import mongoose from "mongoose";
 import "dotenv/config";
 import configMongodb from "../configs/config.mongodb";
@@ -31,4 +29,4 @@ class Database {
   }
 }
 const instanceMongoDB = Database.getInstance();
-export default instanceMongoDB;
+export { instanceMongoDB };

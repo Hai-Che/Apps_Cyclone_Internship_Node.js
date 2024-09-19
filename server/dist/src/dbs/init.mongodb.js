@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.instanceMongoDB = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 require("dotenv/config");
 const config_mongodb_1 = __importDefault(require("../configs/config.mongodb"));
@@ -30,5 +31,5 @@ class Database {
     }
 }
 const instanceMongoDB = Database.getInstance();
-exports.default = instanceMongoDB;
+exports.instanceMongoDB = instanceMongoDB;
 //# sourceMappingURL=init.mongodb.js.map
