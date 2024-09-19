@@ -22,7 +22,7 @@ const userAdvanceRepository = init_mysql_1.default.getRepository(userAdvance_ent
 class AccessService {
 }
 _a = AccessService;
-AccessService.register = (_b) => __awaiter(void 0, [_b], void 0, function* ({ userName, uass, uuid, fullName, Email, phoneNumber, address, dob, profileUrl, }) {
+AccessService.register = (_b) => __awaiter(void 0, [_b], void 0, function* ({ userName, uass, uuid, fullName, email, phoneNumber, address, dob, profileUrl, }) {
     const checkUser = yield userRepository.findOne({
         where: { userName },
     });
@@ -34,7 +34,7 @@ AccessService.register = (_b) => __awaiter(void 0, [_b], void 0, function* ({ us
         uass,
         uuid,
         fullName,
-        Email,
+        email,
         phoneNumber,
     });
     if (!newUser) {

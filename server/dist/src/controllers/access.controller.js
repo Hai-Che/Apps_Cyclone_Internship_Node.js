@@ -14,12 +14,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const success_response_1 = require("../core/success.response");
 const access_service_1 = __importDefault(require("../services/access.service"));
+const user_dto_1 = require("../dto/user.dto");
+const requestValidator_1 = require("../utils/requestValidator");
+const error_response_1 = require("../core/error.response");
 class AccessController {
     constructor() {
         this.register = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            const { errors, input } = yield (0, requestValidator_1.RequestValidator)(user_dto_1.RegisterUserDto, req.body);
+            console.log(input);
+            if (errors) {
+                throw new error_response_1.BadRequestError(`${errors}`);
+            }
             new success_response_1.CREATED({
                 message: "Registered Success",
-                metadata: yield access_service_1.default.register(req.body),
+                metadata: yield access_service_1.default.register(input),
             }).send(res);
         });
     }

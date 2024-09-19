@@ -16,11 +16,11 @@ Content-Type: application/json
 }
 
 ### Get user
-GET {{url_dev}}/user/:id=1
+GET {{url_dev}}/user/2
 Content-Type: application/json
 
 ### Delete user
-DELETE  {{url_dev}}/user/:id=9
+DELETE  {{url_dev}}/user/2
 Content-Type: application/json
 
 

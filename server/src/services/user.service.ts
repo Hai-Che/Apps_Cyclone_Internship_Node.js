@@ -7,7 +7,7 @@ const userRepository = MysqlDataSource.getRepository(User);
 const userAdvanceRepository = MysqlDataSource.getRepository(UserAdvance);
 
 class UserService {
-  static getUser = async ({ userId }) => {
+  static getUser = async (userId: number) => {
     const user = await userRepository.findOne({
       where: { userId },
     });
@@ -74,7 +74,7 @@ class UserService {
     await userAdvanceRepository.save(userAdvance);
     return { user, userAdvance };
   };
-  static deleteUser = async ({ userId }) => {
+  static deleteUser = async (userId: number) => {
     const userAdvance = await userAdvanceRepository.findOne({
       where: { userId },
     });

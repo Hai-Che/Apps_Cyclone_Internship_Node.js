@@ -22,7 +22,7 @@ const userAdvanceRepository = init_mysql_1.default.getRepository(userAdvance_ent
 class UserService {
 }
 _a = UserService;
-UserService.getUser = (_b) => __awaiter(void 0, [_b], void 0, function* ({ userId }) {
+UserService.getUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield userRepository.findOne({
         where: { userId },
     });
@@ -77,19 +77,18 @@ UserService.updateUser = (_b) => __awaiter(void 0, [_b], void 0, function* ({ us
     yield userAdvanceRepository.save(userAdvance);
     return { user, userAdvance };
 });
-UserService.deleteUser = (_b) => __awaiter(void 0, [_b], void 0, function* ({ userId }) {
-    const userAdvance = yield userAdvanceRepository.find({
+UserService.deleteUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const userAdvance = yield userAdvanceRepository.findOne({
         where: { userId },
-        take: 1,
     });
-    if (userAdvance.length) {
-        yield userAdvanceRepository.remove(userAdvance[0]);
+    if (userAdvance) {
+        yield userAdvanceRepository.remove(userAdvance);
     }
-    const user = yield userRepository.find({ where: { userId }, take: 1 });
-    if (!user.length) {
+    const user = yield userRepository.findOne({ where: { userId } });
+    if (!user) {
         throw new error_response_1.BadRequestError("User not found.");
     }
-    yield userRepository.remove(user[0]);
+    yield userRepository.remove(user);
     return { message: "User deleted successfully." };
 });
 exports.default = UserService;

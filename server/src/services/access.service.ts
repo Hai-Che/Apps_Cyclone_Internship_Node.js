@@ -12,7 +12,7 @@ class AccessService {
     uass,
     uuid,
     fullName,
-    Email,
+    email,
     phoneNumber,
     address,
     dob,
@@ -29,7 +29,7 @@ class AccessService {
       uass,
       uuid,
       fullName,
-      Email,
+      email,
       phoneNumber,
     });
     if (!newUser) {
