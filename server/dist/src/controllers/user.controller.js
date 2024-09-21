@@ -22,7 +22,7 @@ class UserController {
         this.getUser = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             new success_response_1.SuccessResponse({
                 message: "getUser Success",
-                metadata: yield user_service_1.default.getUser(req.params.id),
+                metadata: yield user_service_1.default.getUser(Number(req.params.id), req.userId),
             }).send(res);
         });
         this.updateUser = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
@@ -32,13 +32,13 @@ class UserController {
             }
             new success_response_1.SuccessResponse({
                 message: "updateUser Success",
-                metadata: yield user_service_1.default.updateUser(input),
+                metadata: yield user_service_1.default.updateUser(input, req.userId),
             }).send(res);
         });
         this.deleteUser = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
             new success_response_1.SuccessResponse({
                 message: "deleteUser Success",
-                metadata: yield user_service_1.default.deleteUser(req.params.id),
+                metadata: yield user_service_1.default.deleteUser(Number(req.params.id), req.userId),
             }).send(res);
         });
     }

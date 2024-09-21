@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BadRequestError = exports.NotFoundError = exports.ErrorResponse = void 0;
+exports.ForbiddenError = exports.UnauthorizedError = exports.BadRequestError = exports.NotFoundError = exports.ErrorResponse = void 0;
 const httpStatusCode_js_1 = require("../utils/httpStatusCode.js");
 class ErrorResponse extends Error {
     constructor(message, status) {
@@ -21,4 +21,16 @@ class BadRequestError extends ErrorResponse {
     }
 }
 exports.BadRequestError = BadRequestError;
+class UnauthorizedError extends ErrorResponse {
+    constructor(message = httpStatusCode_js_1.ReasonPhrases.UNAUTHORIZED, statusCode = httpStatusCode_js_1.StatusCodes.UNAUTHORIZED) {
+        super(message, statusCode);
+    }
+}
+exports.UnauthorizedError = UnauthorizedError;
+class ForbiddenError extends ErrorResponse {
+    constructor(message = httpStatusCode_js_1.ReasonPhrases.FORBIDDEN, statusCode = httpStatusCode_js_1.StatusCodes.FORBIDDEN) {
+        super(message, statusCode);
+    }
+}
+exports.ForbiddenError = ForbiddenError;
 //# sourceMappingURL=error.response.js.map

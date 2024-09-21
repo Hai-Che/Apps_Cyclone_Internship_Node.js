@@ -6,6 +6,9 @@ export class RegisterUserDto {
   @Matches(RegExp("^[a-zA-Z0-9]{6,}$"))
   userName: string;
 
+  @IsNotEmpty()
+  password: string;
+
   uass: string | null;
 
   @IsNotEmpty()

@@ -22,7 +22,10 @@ const userAdvanceRepository = init_mysql_1.default.getRepository(userAdvance_ent
 class UserService {
 }
 _a = UserService;
-UserService.getUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+UserService.getUser = (userId, currentUserId) => __awaiter(void 0, void 0, void 0, function* () {
+    if (userId !== currentUserId) {
+        throw new error_response_1.ForbiddenError("Can't get info another user");
+    }
     const user = yield userRepository.findOne({
         where: { userId },
     });
@@ -34,7 +37,10 @@ UserService.getUser = (userId) => __awaiter(void 0, void 0, void 0, function* ()
     });
     return { user, userAdvance };
 });
-UserService.updateUser = (_b) => __awaiter(void 0, [_b], void 0, function* ({ userId, userName, uass, uuid, fullName, email, phoneNumber, address, dob, profileUrl, }) {
+UserService.updateUser = (_b, currentUserId_1) => __awaiter(void 0, [_b, currentUserId_1], void 0, function* ({ userId, userName, uass, uuid, fullName, email, phoneNumber, address, dob, profileUrl, }, currentUserId) {
+    if (userId !== currentUserId) {
+        throw new error_response_1.ForbiddenError("Can't update another user");
+    }
     const user = yield userRepository.findOne({ where: { userId } });
     if (!user) {
         throw new error_response_1.BadRequestError("User not found");
@@ -74,10 +80,14 @@ UserService.updateUser = (_b) => __awaiter(void 0, [_b], void 0, function* ({ us
     if (profileUrl) {
         userAdvance.profileUrl = profileUrl;
     }
+    console.log(userAdvance);
     yield userAdvanceRepository.save(userAdvance);
     return { user, userAdvance };
 });
-UserService.deleteUser = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+UserService.deleteUser = (userId, currentUserId) => __awaiter(void 0, void 0, void 0, function* () {
+    if (userId != currentUserId) {
+        throw new error_response_1.ForbiddenError("Can't delete another user");
+    }
     const userAdvance = yield userAdvanceRepository.findOne({
         where: { userId },
     });

@@ -34,6 +34,16 @@ __decorate([
         length: 255,
         charset: "utf8mb4",
         collation: "utf8mb4_general_ci",
+        nullable: false,
+    }),
+    __metadata("design:type", String)
+], User.prototype, "password", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+        charset: "utf8mb4",
+        collation: "utf8mb4_general_ci",
         default: null,
     }),
     __metadata("design:type", String)

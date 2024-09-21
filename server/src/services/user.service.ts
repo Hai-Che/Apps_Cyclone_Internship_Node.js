@@ -1,4 +1,4 @@
-import { BadRequestError } from "../core/error.response";
+import { BadRequestError, ForbiddenError } from "../core/error.response";
 import MysqlDataSource from "../dbs/init.mysql";
 import { User } from "../entities/user.entity";
 import { UserAdvance } from "../entities/userAdvance.entity";
@@ -7,7 +7,10 @@ const userRepository = MysqlDataSource.getRepository(User);
 const userAdvanceRepository = MysqlDataSource.getRepository(UserAdvance);
 
 class UserService {
-  static getUser = async (userId: number) => {
+  static getUser = async (userId: number, currentUserId: number) => {
+    if (userId !== currentUserId) {
+      throw new ForbiddenError("Can't get info another user");
+    }
     const user = await userRepository.findOne({
       where: { userId },
     });
@@ -20,18 +23,24 @@ class UserService {
     return { user, userAdvance };
   };
 
-  static updateUser = async ({
-    userId,
-    userName,
-    uass,
-    uuid,
-    fullName,
-    email,
-    phoneNumber,
-    address,
-    dob,
-    profileUrl,
-  }) => {
+  static updateUser = async (
+    {
+      userId,
+      userName,
+      uass,
+      uuid,
+      fullName,
+      email,
+      phoneNumber,
+      address,
+      dob,
+      profileUrl,
+    },
+    currentUserId: number
+  ) => {
+    if (userId !== currentUserId) {
+      throw new ForbiddenError("Can't update another user");
+    }
     const user = await userRepository.findOne({ where: { userId } });
     if (!user) {
       throw new BadRequestError("User not found");
@@ -71,10 +80,14 @@ class UserService {
     if (profileUrl) {
       userAdvance.profileUrl = profileUrl;
     }
+    console.log(userAdvance);
     await userAdvanceRepository.save(userAdvance);
     return { user, userAdvance };
   };
-  static deleteUser = async (userId: number) => {
+  static deleteUser = async (userId: number, currentUserId: number) => {
+    if (userId != currentUserId) {
+      throw new ForbiddenError("Can't delete another user");
+    }
     const userAdvance = await userAdvanceRepository.findOne({
       where: { userId },
     });
