@@ -1,21 +1,22 @@
 import jwt from "jsonwebtoken";
 import { asyncHandler } from "../helper/asyncHandler";
-import { UnauthorizedError, NotFoundError } from "../core/error.response";
-import keyTokenService from "../services/keyToken.service";
+import { UnauthorizedError } from "../core/error.response";
+import "dotenv/config";
+import redisClient from "../dbs/init.redis";
+import { getUserById } from "../entities/repositories/user.repo";
 
 const HEADER = {
   AUTHORIZATION: "authorization",
-  CLIENT_ID: "x-client-id",
   REFRESH_TOKEN: "x-rtoken-id",
 };
 
 const createTokenPair = async (payload, accessKey, refreshKey) => {
   try {
     const accessToken = await jwt.sign(payload, accessKey, {
-      expiresIn: "1h",
+      expiresIn: "30s",
     });
     const refreshToken = await jwt.sign(payload, refreshKey, {
-      expiresIn: "7 days",
+      expiresIn: "300s",
     });
     return { accessToken, refreshToken };
   } catch (error) {
@@ -23,44 +24,63 @@ const createTokenPair = async (payload, accessKey, refreshKey) => {
   }
 };
 
-const authentication = asyncHandler(async (req, res, next) => {
-  const userId = Number(req.headers[HEADER.CLIENT_ID]);
-  if (!userId) {
-    throw new UnauthorizedError("Invalid request");
+const createAccessToken = async (payload, accessKey) => {
+  try {
+    const accessToken = await jwt.sign(payload, accessKey, {
+      expiresIn: "30s",
+    });
+    return accessToken;
+  } catch (error) {
+    throw error;
   }
-  const keyStore = await keyTokenService.findKeyStoreByUserId(userId);
-  if (!keyStore) {
-    throw new NotFoundError("Not found keystore");
-  }
-  if (req.headers[HEADER.REFRESH_TOKEN]) {
-    try {
-      const refreshToken = req.headers[HEADER.REFRESH_TOKEN];
-      const decodeUser = jwt.verify(refreshToken, keyStore.refreshKey);
-      if (userId !== decodeUser.userId) {
-        throw new UnauthorizedError("Invalid user id");
-      }
-      req.keyStore = keyStore;
-      req.userId = decodeUser.userId;
-      req.refreshToken = refreshToken;
-      return next();
-    } catch (error) {
-      throw error;
-    }
-  }
+};
+
+const verifyToken = asyncHandler(async (req, res, next) => {
   const accessToken = req.headers[HEADER.AUTHORIZATION];
   if (!accessToken) {
     throw new UnauthorizedError("Invalid request");
   }
   try {
-    const decodeUser = jwt.verify(accessToken, keyStore.accessKey);
-    if (userId !== decodeUser.userId) {
-      throw new UnauthorizedError("Invalid user id");
+    const decodeUser = jwt.decode(accessToken, { complete: true });
+    const userId = decodeUser.payload.userId;
+    const findUser = await getUserById(userId);
+    if (!findUser) {
+      throw new UnauthorizedError("User not found");
     }
-    req.userId = decodeUser.userId;
+    const verified = jwt.verify(accessToken, `${findUser.salt}at`);
+    req.userId = verified.userId;
+    req.sessionId = verified.sessionId;
     return next();
   } catch (error) {
     throw error;
   }
 });
 
-export { createTokenPair, authentication };
+const verifyRefreshToken = asyncHandler(async (req, res, next) => {
+  const refreshToken = req.headers[HEADER.REFRESH_TOKEN];
+  if (!refreshToken) {
+    throw new UnauthorizedError("Invalid request");
+  }
+  try {
+    const decodeUser = jwt.decode(refreshToken, { complete: true });
+    const userId = decodeUser.payload.userId;
+    const findUser = await getUserById(userId);
+    if (!findUser) {
+      throw new UnauthorizedError("User not found");
+    }
+    const verified = jwt.verify(refreshToken, `${findUser.salt}rt`);
+    req.userId = verified.userId;
+    req.sessionId = verified.sessionId;
+    const storedRefreshToken = await redisClient.get(
+      `refreshToken:${verified.userId}:${verified.sessionId}`
+    );
+    if (storedRefreshToken !== refreshToken) {
+      throw new UnauthorizedError("Unauthorized error");
+    }
+    return next();
+  } catch (error) {
+    throw error;
+  }
+});
+
+export { createTokenPair, createAccessToken, verifyToken, verifyRefreshToken };

@@ -24,7 +24,6 @@ __decorate([
         length: 32,
         charset: "utf8mb4",
         collation: "utf8mb4_general_ci",
-        nullable: false,
     }),
     __metadata("design:type", String)
 ], User.prototype, "userName", void 0);
@@ -34,7 +33,6 @@ __decorate([
         length: 255,
         charset: "utf8mb4",
         collation: "utf8mb4_general_ci",
-        nullable: false,
     }),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
@@ -44,7 +42,7 @@ __decorate([
         length: 255,
         charset: "utf8mb4",
         collation: "utf8mb4_general_ci",
-        default: null,
+        nullable: true,
     }),
     __metadata("design:type", String)
 ], User.prototype, "uass", void 0);
@@ -54,7 +52,6 @@ __decorate([
         length: 36,
         charset: "utf8mb4",
         collation: "utf8mb4_general_ci",
-        nullable: false,
     }),
     __metadata("design:type", String)
 ], User.prototype, "uuid", void 0);
@@ -64,7 +61,6 @@ __decorate([
         length: 128,
         charset: "utf8mb4",
         collation: "utf8mb4_general_ci",
-        nullable: false,
     }),
     __metadata("design:type", String)
 ], User.prototype, "fullName", void 0);
@@ -74,7 +70,7 @@ __decorate([
         length: 64,
         charset: "utf8mb4",
         collation: "utf8mb4_general_ci",
-        default: null,
+        nullable: true,
     }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
@@ -84,12 +80,12 @@ __decorate([
         length: 16,
         charset: "utf8mb4",
         collation: "utf8mb4_general_ci",
-        default: null,
+        nullable: true,
     }),
     __metadata("design:type", String)
 ], User.prototype, "phoneNumber", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "int", default: 1, nullable: false }),
+    (0, typeorm_1.Column)({ type: "int", default: 1 }),
     __metadata("design:type", Number)
 ], User.prototype, "createdBy", void 0);
 __decorate([
@@ -97,13 +93,17 @@ __decorate([
     __metadata("design:type", Date)
 ], User.prototype, "createdDate", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "int", default: 1, nullable: false }),
+    (0, typeorm_1.Column)({ type: "int", default: 1 }),
     __metadata("design:type", Number)
 ], User.prototype, "updatedBy", void 0);
 __decorate([
     (0, typeorm_1.UpdateDateColumn)(),
     __metadata("design:type", Date)
 ], User.prototype, "updatedDate", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "salt", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)()
 ], User);

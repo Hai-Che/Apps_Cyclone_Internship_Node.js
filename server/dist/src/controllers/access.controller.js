@@ -36,13 +36,17 @@ class AccessController {
             }).send(res);
         });
         this.handleRefreshToken = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            const { userId, sessionId } = req;
             new success_response_1.SuccessResponse({
                 message: "Get Tokens Success",
-                metadata: yield access_service_1.default.handleRefreshToken({
-                    refreshToken: req.refreshToken,
-                    userId: req.userId,
-                    keyStore: req.keyStore,
-                }),
+                metadata: yield access_service_1.default.handleRefreshToken(userId, sessionId),
+            }).send(res);
+        });
+        this.logout = (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+            const { userId, sessionId } = req;
+            new success_response_1.SuccessResponse({
+                message: "Logout Success",
+                metadata: yield access_service_1.default.logout(userId, sessionId),
             }).send(res);
         });
     }

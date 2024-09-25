@@ -80,7 +80,6 @@ UserService.updateUser = (_b, currentUserId_1) => __awaiter(void 0, [_b, current
     if (profileUrl) {
         userAdvance.profileUrl = profileUrl;
     }
-    console.log(userAdvance);
     yield userAdvanceRepository.save(userAdvance);
     return { user, userAdvance };
 });

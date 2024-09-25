@@ -12,10 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.findByUsername = void 0;
-const user_model_1 = __importDefault(require("../user.model"));
-const findByUsername = (username) => __awaiter(void 0, void 0, void 0, function* () {
-    return yield user_model_1.default.findOne({ username }).lean();
+exports.getUserById = void 0;
+const init_mysql_1 = __importDefault(require("../../dbs/init.mysql"));
+const user_entity_1 = require("../user.entity");
+const userRepository = init_mysql_1.default.getRepository(user_entity_1.User);
+const getUserById = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    return yield userRepository.findOne({ where: { userId } });
 });
-exports.findByUsername = findByUsername;
+exports.getUserById = getUserById;
 //# sourceMappingURL=user.repo.js.map

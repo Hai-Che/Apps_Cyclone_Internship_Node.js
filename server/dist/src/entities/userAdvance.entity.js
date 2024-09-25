@@ -19,19 +19,19 @@ __decorate([
     __metadata("design:type", Number)
 ], UserAdvance.prototype, "userId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 256, charset: "utf8mb4", default: null }),
+    (0, typeorm_1.Column)({ type: "varchar", length: 256, charset: "utf8mb4", nullable: true }),
     __metadata("design:type", String)
 ], UserAdvance.prototype, "address", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "date", default: null }),
+    (0, typeorm_1.Column)({ type: "date", nullable: true }),
     __metadata("design:type", Date)
 ], UserAdvance.prototype, "dob", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 128, charset: "utf8mb4", default: null }),
+    (0, typeorm_1.Column)({ type: "varchar", length: 128, charset: "utf8mb4", nullable: true }),
     __metadata("design:type", String)
 ], UserAdvance.prototype, "profileUrl", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "int", default: 1, nullable: false }),
+    (0, typeorm_1.Column)({ type: "int", default: 1 }),
     __metadata("design:type", Number)
 ], UserAdvance.prototype, "createdBy", void 0);
 __decorate([
@@ -39,7 +39,7 @@ __decorate([
     __metadata("design:type", Date)
 ], UserAdvance.prototype, "createdDate", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "int", default: 1, nullable: false }),
+    (0, typeorm_1.Column)({ type: "int", default: 1 }),
     __metadata("design:type", Number)
 ], UserAdvance.prototype, "updatedBy", void 0);
 __decorate([

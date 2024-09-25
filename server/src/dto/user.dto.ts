@@ -1,4 +1,13 @@
-import { IsNotEmpty, IsUUID, Matches, MaxLength } from "class-validator";
+import { Type } from "class-transformer";
+import {
+  IsDate,
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  IsUUID,
+  Matches,
+  MaxLength,
+} from "class-validator";
 
 export class RegisterUserDto {
   @IsNotEmpty()
@@ -9,7 +18,9 @@ export class RegisterUserDto {
   @IsNotEmpty()
   password: string;
 
-  uass: string | null;
+  @IsString()
+  @MaxLength(255)
+  uass: string;
 
   @IsNotEmpty()
   @IsUUID()
@@ -21,15 +32,21 @@ export class RegisterUserDto {
   @Matches(RegExp("^[a-zA-Zs]{6,64}$"))
   fullName: string;
 
-  email: string | null;
+  @IsEmail()
+  email: string;
 
-  phoneNumber: string | null;
+  @IsString()
+  phoneNumber: string;
 
-  address: string | null;
+  @IsString()
+  address: string;
 
-  dob: Date | null;
+  @IsDate()
+  @Type(() => Date)
+  dob: Date;
 
-  profileUrl: string | null;
+  @IsString()
+  profileUrl: string;
 }
 
 export class UpdateUserDto {
@@ -41,7 +58,9 @@ export class UpdateUserDto {
   @Matches(RegExp("^[a-zA-Z0-9]{6,}$"))
   userName: string;
 
-  uass: string | null;
+  @IsString()
+  @MaxLength(255)
+  uass: string;
 
   @IsNotEmpty()
   @IsUUID()
@@ -53,13 +72,19 @@ export class UpdateUserDto {
   @Matches(RegExp("^[a-zA-Zs]{6,64}$"))
   fullName: string;
 
-  email: string | null;
+  @IsEmail()
+  email: string;
 
-  phoneNumber: string | null;
+  @IsString()
+  phoneNumber: string;
 
-  address: string | null;
+  @IsString()
+  address: string;
 
-  dob: Date | null;
+  @IsDate()
+  @Type(() => Date)
+  dob: Date;
 
-  profileUrl: string | null;
+  @IsString()
+  profileUrl: string;
 }

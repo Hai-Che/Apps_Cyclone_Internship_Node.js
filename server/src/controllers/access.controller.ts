@@ -21,13 +21,17 @@ class AccessController {
     }).send(res);
   };
   handleRefreshToken = async (req, res, next) => {
+    const { userId, sessionId } = req;
     new SuccessResponse({
       message: "Get Tokens Success",
-      metadata: await AccessService.handleRefreshToken({
-        refreshToken: req.refreshToken,
-        userId: req.userId,
-        keyStore: req.keyStore,
-      }),
+      metadata: await AccessService.handleRefreshToken(userId, sessionId),
+    }).send(res);
+  };
+  logout = async (req, res, next) => {
+    const { userId, sessionId } = req;
+    new SuccessResponse({
+      message: "Logout Success",
+      metadata: await AccessService.logout(userId, sessionId),
     }).send(res);
   };
 }

@@ -16,7 +16,6 @@ export class User {
     length: 32,
     charset: "utf8mb4",
     collation: "utf8mb4_general_ci",
-    nullable: false,
   })
   userName: string;
 
@@ -25,7 +24,6 @@ export class User {
     length: 255,
     charset: "utf8mb4",
     collation: "utf8mb4_general_ci",
-    nullable: false,
   })
   password: string;
 
@@ -34,16 +32,15 @@ export class User {
     length: 255,
     charset: "utf8mb4",
     collation: "utf8mb4_general_ci",
-    default: null,
+    nullable: true,
   })
-  uass: string | null;
+  uass: string;
 
   @Column({
     type: "varchar",
     length: 36,
     charset: "utf8mb4",
     collation: "utf8mb4_general_ci",
-    nullable: false,
   })
   uuid: string;
 
@@ -52,7 +49,6 @@ export class User {
     length: 128,
     charset: "utf8mb4",
     collation: "utf8mb4_general_ci",
-    nullable: false,
   })
   fullName: string;
 
@@ -61,28 +57,31 @@ export class User {
     length: 64,
     charset: "utf8mb4",
     collation: "utf8mb4_general_ci",
-    default: null,
+    nullable: true,
   })
-  email: string | null;
+  email: string;
 
   @Column({
     type: "varchar",
     length: 16,
     charset: "utf8mb4",
     collation: "utf8mb4_general_ci",
-    default: null,
+    nullable: true,
   })
-  phoneNumber: string | null;
+  phoneNumber: string;
 
-  @Column({ type: "int", default: 1, nullable: false })
+  @Column({ type: "int", default: 1 })
   createdBy: number;
 
   @CreateDateColumn()
   createdDate: Date;
 
-  @Column({ type: "int", default: 1, nullable: false })
+  @Column({ type: "int", default: 1 })
   updatedBy: number;
 
   @UpdateDateColumn()
   updatedDate: Date;
+
+  @Column({ nullable: true })
+  salt: string;
 }

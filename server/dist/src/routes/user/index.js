@@ -8,7 +8,7 @@ const user_controller_1 = __importDefault(require("../../controllers/user.contro
 const asyncHandler_1 = require("../../helper/asyncHandler");
 const authUtils_1 = require("../../auth/authUtils");
 const router = express_1.default.Router();
-router.use(authUtils_1.authentication);
+router.use(authUtils_1.verifyToken);
 router.get("/user/:id", (0, asyncHandler_1.asyncHandler)(user_controller_1.default.getUser));
 router.put("/user", (0, asyncHandler_1.asyncHandler)(user_controller_1.default.updateUser));
 router.delete("/user/:id", (0, asyncHandler_1.asyncHandler)(user_controller_1.default.deleteUser));

@@ -10,7 +10,7 @@ const authUtils_1 = require("../../auth/authUtils");
 const router = express_1.default.Router();
 router.post("/register", (0, asyncHandler_1.asyncHandler)(access_controller_1.default.register));
 router.post("/login", (0, asyncHandler_1.asyncHandler)(access_controller_1.default.login));
-router.use(authUtils_1.authentication);
-router.post("/handleRefreshToken", (0, asyncHandler_1.asyncHandler)(access_controller_1.default.handleRefreshToken));
+router.post("/logout", authUtils_1.verifyToken, (0, asyncHandler_1.asyncHandler)(access_controller_1.default.logout));
+router.post("/handleRefreshToken", authUtils_1.verifyRefreshToken, (0, asyncHandler_1.asyncHandler)(access_controller_1.default.handleRefreshToken));
 exports.default = router;
 //# sourceMappingURL=index.js.map

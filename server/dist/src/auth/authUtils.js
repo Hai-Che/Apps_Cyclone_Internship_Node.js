@@ -12,23 +12,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.authentication = exports.createTokenPair = void 0;
+exports.verifyRefreshToken = exports.verifyToken = exports.createAccessToken = exports.createTokenPair = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const asyncHandler_1 = require("../helper/asyncHandler");
 const error_response_1 = require("../core/error.response");
-const keyToken_service_1 = __importDefault(require("../services/keyToken.service"));
+require("dotenv/config");
+const init_redis_1 = __importDefault(require("../dbs/init.redis"));
+const user_repo_1 = require("../entities/repositories/user.repo");
 const HEADER = {
     AUTHORIZATION: "authorization",
-    CLIENT_ID: "x-client-id",
     REFRESH_TOKEN: "x-rtoken-id",
 };
 const createTokenPair = (payload, accessKey, refreshKey) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const accessToken = yield jsonwebtoken_1.default.sign(payload, accessKey, {
-            expiresIn: "1h",
+            expiresIn: "30s",
         });
         const refreshToken = yield jsonwebtoken_1.default.sign(payload, refreshKey, {
-            expiresIn: "7 days",
+            expiresIn: "300s",
         });
         return { accessToken, refreshToken };
     }
@@ -37,46 +38,64 @@ const createTokenPair = (payload, accessKey, refreshKey) => __awaiter(void 0, vo
     }
 });
 exports.createTokenPair = createTokenPair;
-const authentication = (0, asyncHandler_1.asyncHandler)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const userId = Number(req.headers[HEADER.CLIENT_ID]);
-    if (!userId) {
-        throw new error_response_1.UnauthorizedError("Invalid request");
+const createAccessToken = (payload, accessKey) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const accessToken = yield jsonwebtoken_1.default.sign(payload, accessKey, {
+            expiresIn: "30s",
+        });
+        return accessToken;
     }
-    const keyStore = yield keyToken_service_1.default.findKeyStoreByUserId(userId);
-    if (!keyStore) {
-        throw new error_response_1.NotFoundError("Not found keystore");
+    catch (error) {
+        throw error;
     }
-    if (req.headers[HEADER.REFRESH_TOKEN]) {
-        try {
-            const refreshToken = req.headers[HEADER.REFRESH_TOKEN];
-            const decodeUser = jsonwebtoken_1.default.verify(refreshToken, keyStore.refreshKey);
-            if (userId !== decodeUser.userId) {
-                throw new error_response_1.UnauthorizedError("Invalid user id");
-            }
-            req.keyStore = keyStore;
-            req.userId = decodeUser.userId;
-            req.refreshToken = refreshToken;
-            return next();
-        }
-        catch (error) {
-            throw error;
-        }
-    }
+});
+exports.createAccessToken = createAccessToken;
+const verifyToken = (0, asyncHandler_1.asyncHandler)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const accessToken = req.headers[HEADER.AUTHORIZATION];
     if (!accessToken) {
         throw new error_response_1.UnauthorizedError("Invalid request");
     }
     try {
-        const decodeUser = jsonwebtoken_1.default.verify(accessToken, keyStore.accessKey);
-        if (userId !== decodeUser.userId) {
-            throw new error_response_1.UnauthorizedError("Invalid user id");
+        const decodeUser = jsonwebtoken_1.default.decode(accessToken, { complete: true });
+        const userId = decodeUser.payload.userId;
+        const findUser = yield (0, user_repo_1.getUserById)(userId);
+        if (!findUser) {
+            throw new error_response_1.UnauthorizedError("User not found");
         }
-        req.userId = decodeUser.userId;
+        const verified = jsonwebtoken_1.default.verify(accessToken, `${findUser.salt}at`);
+        req.userId = verified.userId;
+        req.sessionId = verified.sessionId;
         return next();
     }
     catch (error) {
         throw error;
     }
 }));
-exports.authentication = authentication;
+exports.verifyToken = verifyToken;
+const verifyRefreshToken = (0, asyncHandler_1.asyncHandler)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const refreshToken = req.headers[HEADER.REFRESH_TOKEN];
+    if (!refreshToken) {
+        throw new error_response_1.UnauthorizedError("Invalid request");
+    }
+    try {
+        const decodeUser = jsonwebtoken_1.default.decode(refreshToken, { complete: true });
+        const userId = decodeUser.payload.userId;
+        const findUser = yield (0, user_repo_1.getUserById)(userId);
+        if (!findUser) {
+            throw new error_response_1.UnauthorizedError("User not found");
+        }
+        const verified = jsonwebtoken_1.default.verify(refreshToken, `${findUser.salt}rt`);
+        req.userId = verified.userId;
+        req.sessionId = verified.sessionId;
+        const storedRefreshToken = yield init_redis_1.default.get(`refreshToken:${verified.userId}:${verified.sessionId}`);
+        if (storedRefreshToken !== refreshToken) {
+            throw new error_response_1.UnauthorizedError("Unauthorized error");
+        }
+        return next();
+    }
+    catch (error) {
+        throw error;
+    }
+}));
+exports.verifyRefreshToken = verifyRefreshToken;
 //# sourceMappingURL=authUtils.js.map

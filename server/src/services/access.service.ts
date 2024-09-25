@@ -1,16 +1,15 @@
-import crypto from "node:crypto";
 import bcrypt from "bcrypt";
+import "dotenv/config";
 import MysqlDataSource from "../dbs/init.mysql";
 import { BadRequestError, UnauthorizedError } from "../core/error.response";
-import { createTokenPair } from "../auth/authUtils";
+import { createAccessToken, createTokenPair } from "../auth/authUtils";
 import { User } from "../entities/user.entity";
 import { UserAdvance } from "../entities/userAdvance.entity";
-import { KeyToken } from "../entities/keyToken.entity";
-import keyTokenService from "./keyToken.service";
+import redisClient from "../dbs/init.redis";
+import { v4 as uuidv4 } from "uuid";
 
 const userRepository = MysqlDataSource.getRepository(User);
 const userAdvanceRepository = MysqlDataSource.getRepository(UserAdvance);
-const keyTokenRepository = MysqlDataSource.getRepository(KeyToken);
 
 class AccessService {
   static register = async ({
@@ -31,6 +30,7 @@ class AccessService {
     if (checkUser) {
       throw new BadRequestError("Username already existed");
     }
+    const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = await userRepository.save({
       userName,
@@ -40,6 +40,7 @@ class AccessService {
       fullName,
       email,
       phoneNumber,
+      salt,
     });
     if (!newUser) {
       throw new BadRequestError("Failed to create user");
@@ -53,26 +54,7 @@ class AccessService {
     if (!newUserAdvance) {
       throw new BadRequestError("Failed to create user advance");
     }
-    const accessKey = crypto.randomBytes(64).toString("hex");
-    const refreshKey = crypto.randomBytes(64).toString("hex");
-    const tokens = await createTokenPair(
-      {
-        userId: newUser.userId,
-      },
-      accessKey,
-      refreshKey
-    );
-    const keyStore = await keyTokenService.createKeyToken({
-      userId: newUser.userId,
-      accessKey,
-      refreshKey,
-      refreshToken: tokens.refreshToken,
-    });
-
-    if (!keyStore) {
-      throw new BadRequestError("Fail to create keyStore");
-    }
-    return { user: newUser, userAdvance: newUserAdvance, tokens };
+    return { user: newUser, userAdvance: newUserAdvance };
   };
 
   static login = async ({ userName, password }) => {
@@ -84,46 +66,52 @@ class AccessService {
     if (!passwordCheck) {
       throw new UnauthorizedError("Authenticated error");
     }
-    const accessKey = crypto.randomBytes(64).toString("hex");
-    const refreshKey = crypto.randomBytes(64).toString("hex");
-
+    const sessionId = uuidv4();
     const tokens = await createTokenPair(
-      { userId: findUser.userId },
-      accessKey,
-      refreshKey
+      { userId: findUser.userId, sessionId },
+      `${findUser.salt}at`,
+      `${findUser.salt}rt`
     );
-    await keyTokenService.createKeyToken({
-      userId: findUser.userId,
-      accessKey,
-      refreshKey,
-      refreshToken: tokens.refreshToken,
-    });
+    await redisClient.set(
+      `accessToken:${findUser.userId}:${sessionId}`,
+      tokens.accessToken,
+      "EX",
+      30
+    );
+    await redisClient.set(
+      `refreshToken:${findUser.userId}:${sessionId}`,
+      tokens.refreshToken,
+      "EX",
+      300
+    );
     return {
       user: findUser,
       tokens,
+      sessionId,
     };
   };
-  static handleRefreshToken = async ({ userId, refreshToken, keyStore }) => {
-    if (keyStore.refreshToken !== refreshToken) {
-      throw new UnauthorizedError("User is not registered");
+  static handleRefreshToken = async (userId: number, sessionId: string) => {
+    const findUser = await userRepository.findOne({ where: { userId } });
+    if (!findUser) {
+      throw new BadRequestError(`User is not exist`);
     }
-    const user = await userRepository.findOne({ where: { userId } });
-    if (!user) {
-      throw new UnauthorizedError("Not registered");
-    }
-    const tokens = await createTokenPair(
-      {
-        userId,
-      },
-      keyStore.accessKey,
-      keyStore.refreshKey
+    const accessToken = await createAccessToken(
+      { userId, sessionId },
+      `${findUser.salt}at`
     );
-    keyStore.refreshToken = tokens.refreshToken;
-    await keyTokenRepository.save(keyStore);
-    return {
-      user,
-      tokens,
-    };
+    await redisClient.set(
+      `accessToken:${userId}:${sessionId}`,
+      accessToken,
+      "EX",
+      30
+    );
+    return accessToken;
+  };
+
+  static logout = async (userId: number, sessionId: string) => {
+    await redisClient.del(`accessToken:${userId}:${sessionId}`);
+
+    return { message: "Logout successful" };
   };
 }
 export default AccessService;

@@ -80,7 +80,6 @@ class UserService {
     if (profileUrl) {
       userAdvance.profileUrl = profileUrl;
     }
-    console.log(userAdvance);
     await userAdvanceRepository.save(userAdvance);
     return { user, userAdvance };
   };

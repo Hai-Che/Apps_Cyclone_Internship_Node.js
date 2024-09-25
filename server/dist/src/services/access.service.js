@@ -13,18 +13,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-const node_crypto_1 = __importDefault(require("node:crypto"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+require("dotenv/config");
 const init_mysql_1 = __importDefault(require("../dbs/init.mysql"));
 const error_response_1 = require("../core/error.response");
 const authUtils_1 = require("../auth/authUtils");
 const user_entity_1 = require("../entities/user.entity");
 const userAdvance_entity_1 = require("../entities/userAdvance.entity");
-const keyToken_entity_1 = require("../entities/keyToken.entity");
-const keyToken_service_1 = __importDefault(require("./keyToken.service"));
+const init_redis_1 = __importDefault(require("../dbs/init.redis"));
+const uuid_1 = require("uuid");
 const userRepository = init_mysql_1.default.getRepository(user_entity_1.User);
 const userAdvanceRepository = init_mysql_1.default.getRepository(userAdvance_entity_1.UserAdvance);
-const keyTokenRepository = init_mysql_1.default.getRepository(keyToken_entity_1.KeyToken);
 class AccessService {
 }
 _a = AccessService;
@@ -35,6 +34,7 @@ AccessService.register = (_b) => __awaiter(void 0, [_b], void 0, function* ({ us
     if (checkUser) {
         throw new error_response_1.BadRequestError("Username already existed");
     }
+    const salt = yield bcrypt_1.default.genSalt(10);
     const hashedPassword = yield bcrypt_1.default.hash(password, 10);
     const newUser = yield userRepository.save({
         userName,
@@ -44,6 +44,7 @@ AccessService.register = (_b) => __awaiter(void 0, [_b], void 0, function* ({ us
         fullName,
         email,
         phoneNumber,
+        salt,
     });
     if (!newUser) {
         throw new error_response_1.BadRequestError("Failed to create user");
@@ -57,21 +58,7 @@ AccessService.register = (_b) => __awaiter(void 0, [_b], void 0, function* ({ us
     if (!newUserAdvance) {
         throw new error_response_1.BadRequestError("Failed to create user advance");
     }
-    const accessKey = node_crypto_1.default.randomBytes(64).toString("hex");
-    const refreshKey = node_crypto_1.default.randomBytes(64).toString("hex");
-    const tokens = yield (0, authUtils_1.createTokenPair)({
-        userId: newUser.userId,
-    }, accessKey, refreshKey);
-    const keyStore = yield keyToken_service_1.default.createKeyToken({
-        userId: newUser.userId,
-        accessKey,
-        refreshKey,
-        refreshToken: tokens.refreshToken,
-    });
-    if (!keyStore) {
-        throw new error_response_1.BadRequestError("Fail to create keyStore");
-    }
-    return { user: newUser, userAdvance: newUserAdvance, tokens };
+    return { user: newUser, userAdvance: newUserAdvance };
 });
 AccessService.login = (_b) => __awaiter(void 0, [_b], void 0, function* ({ userName, password }) {
     const findUser = yield userRepository.findOne({ where: { userName } });
@@ -82,37 +69,28 @@ AccessService.login = (_b) => __awaiter(void 0, [_b], void 0, function* ({ userN
     if (!passwordCheck) {
         throw new error_response_1.UnauthorizedError("Authenticated error");
     }
-    const accessKey = node_crypto_1.default.randomBytes(64).toString("hex");
-    const refreshKey = node_crypto_1.default.randomBytes(64).toString("hex");
-    const tokens = yield (0, authUtils_1.createTokenPair)({ userId: findUser.userId }, accessKey, refreshKey);
-    yield keyToken_service_1.default.createKeyToken({
-        userId: findUser.userId,
-        accessKey,
-        refreshKey,
-        refreshToken: tokens.refreshToken,
-    });
+    const sessionId = (0, uuid_1.v4)();
+    const tokens = yield (0, authUtils_1.createTokenPair)({ userId: findUser.userId, sessionId }, `${findUser.salt}at`, `${findUser.salt}rt`);
+    yield init_redis_1.default.set(`accessToken:${findUser.userId}:${sessionId}`, tokens.accessToken, "EX", 30);
+    yield init_redis_1.default.set(`refreshToken:${findUser.userId}:${sessionId}`, tokens.refreshToken, "EX", 300);
     return {
         user: findUser,
         tokens,
+        sessionId,
     };
 });
-AccessService.handleRefreshToken = (_b) => __awaiter(void 0, [_b], void 0, function* ({ userId, refreshToken, keyStore }) {
-    if (keyStore.refreshToken !== refreshToken) {
-        throw new error_response_1.UnauthorizedError("User is not registered");
+AccessService.handleRefreshToken = (userId, sessionId) => __awaiter(void 0, void 0, void 0, function* () {
+    const findUser = yield userRepository.findOne({ where: { userId } });
+    if (!findUser) {
+        throw new error_response_1.BadRequestError(`User is not exist`);
     }
-    const user = yield userRepository.findOne({ where: { userId } });
-    if (!user) {
-        throw new error_response_1.UnauthorizedError("Not registered");
-    }
-    const tokens = yield (0, authUtils_1.createTokenPair)({
-        userId,
-    }, keyStore.accessKey, keyStore.refreshKey);
-    keyStore.refreshToken = tokens.refreshToken;
-    yield keyTokenRepository.save(keyStore);
-    return {
-        user,
-        tokens,
-    };
+    const accessToken = yield (0, authUtils_1.createAccessToken)({ userId, sessionId }, `${findUser.salt}at`);
+    yield init_redis_1.default.set(`accessToken:${userId}:${sessionId}`, accessToken, "EX", 30);
+    return accessToken;
+});
+AccessService.logout = (userId, sessionId) => __awaiter(void 0, void 0, void 0, function* () {
+    yield init_redis_1.default.del(`accessToken:${userId}:${sessionId}`);
+    return { message: "Logout successful" };
 });
 exports.default = AccessService;
 //# sourceMappingURL=access.service.js.map
