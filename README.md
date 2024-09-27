@@ -31,7 +31,9 @@ Message queue là một cơ chế trong lập trình và kiến trúc phần m�
 - Đảm bảo giao tiếp tin cậy: Hệ thống Message Queue thường có cơ chế đảm bảo rằng việc trao đổi thông tin giữa Producer và Consumer được chính xác và xử lý đúng cách.
 - Giảm lỗi chồng chéo : Message Queue giúp giảm lỗi chồng chéo bằng cách loại bỏ trực tiếp kết nối giữa các thành phần, giảm khả năng lỗi do sự phụ thuộc và giao tiếp trực tiếp.
 - Khả năng phục hồi: Do các thành phần hoạt động hoàn toàn độc lập với nhau nên khi một thành phần gặp sự cố thì thành phần kia vẫn có thể hoạt động bình thường. Việc bảo trì, sửa chữa hệ thống cũng không quá phức tạp.
-  Nhược điểm:
+
+Nhược điểm:
+
 - Phức tạp hóa hệ thống: Sử dụng Message Queue có thể làm phức tạp hóa hệ thống và tốn kém. Đối với các hệ thống nhỏ, đôi khi triển khai Message queue là không cần thiết.
 - Độ trễ : Việc trao đổi thông tin bất đồng bộ giữa các thành phần sẽ có một độ trễ nhất định.
 - Chi phí xử lý: Message Queue sẽ tăng tải của hệ thống nếu phải xử lý lượng lớn thông tin.
