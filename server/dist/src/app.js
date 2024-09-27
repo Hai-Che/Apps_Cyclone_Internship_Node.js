@@ -10,7 +10,7 @@ const errorHandler_1 = require("./middleware/errorHandler");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 (0, dbs_1.initializeDatabase)();
-app.use("/", index_1.default);
+app.use("/api", index_1.default);
 // Catch all 404 error middleware
 app.use(errorHandler_1.notFoundHandler);
 // Error handling middleware

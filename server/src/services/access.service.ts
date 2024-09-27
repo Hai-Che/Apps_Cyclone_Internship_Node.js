@@ -1,11 +1,12 @@
 import bcrypt from "bcrypt";
 import "dotenv/config";
 import MysqlDataSource from "../dbs/init.mysql";
+import redisClient from "../dbs/init.redis";
+import { emailQueue } from "../queues/emailQueue";
 import { BadRequestError, UnauthorizedError } from "../core/error.response";
 import { createAccessToken, createTokenPair } from "../auth/authUtils";
 import { User } from "../entities/user.entity";
 import { UserAdvance } from "../entities/userAdvance.entity";
-import redisClient from "../dbs/init.redis";
 import { v4 as uuidv4 } from "uuid";
 
 const userRepository = MysqlDataSource.getRepository(User);
@@ -54,6 +55,11 @@ class AccessService {
     if (!newUserAdvance) {
       throw new BadRequestError("Failed to create user advance");
     }
+    await emailQueue.add("sendEmail", {
+      email: email,
+      subject: "Register successfully",
+      text: `Dear ${userName},\n\n Welcome!`,
+    });
     return { user: newUser, userAdvance: newUserAdvance };
   };
 

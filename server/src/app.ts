@@ -7,7 +7,7 @@ app.use(express.json());
 
 initializeDatabase();
 
-app.use("/", mainRoute);
+app.use("/api", mainRoute);
 
 // Catch all 404 error middleware
 app.use(notFoundHandler);

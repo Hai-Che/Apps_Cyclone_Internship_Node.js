@@ -16,11 +16,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bcrypt_1 = __importDefault(require("bcrypt"));
 require("dotenv/config");
 const init_mysql_1 = __importDefault(require("../dbs/init.mysql"));
+const init_redis_1 = __importDefault(require("../dbs/init.redis"));
+const emailQueue_1 = require("../queues/emailQueue");
 const error_response_1 = require("../core/error.response");
 const authUtils_1 = require("../auth/authUtils");
 const user_entity_1 = require("../entities/user.entity");
 const userAdvance_entity_1 = require("../entities/userAdvance.entity");
-const init_redis_1 = __importDefault(require("../dbs/init.redis"));
 const uuid_1 = require("uuid");
 const userRepository = init_mysql_1.default.getRepository(user_entity_1.User);
 const userAdvanceRepository = init_mysql_1.default.getRepository(userAdvance_entity_1.UserAdvance);
@@ -58,6 +59,11 @@ AccessService.register = (_b) => __awaiter(void 0, [_b], void 0, function* ({ us
     if (!newUserAdvance) {
         throw new error_response_1.BadRequestError("Failed to create user advance");
     }
+    yield emailQueue_1.emailQueue.add("sendEmail", {
+        email: email,
+        subject: "Register successfully",
+        text: `Dear ${userName},\n\n Welcome!`,
+    });
     return { user: newUser, userAdvance: newUserAdvance };
 });
 AccessService.login = (_b) => __awaiter(void 0, [_b], void 0, function* ({ userName, password }) {
