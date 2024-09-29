@@ -1,20 +1,25 @@
 "use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.errorHandler = exports.notFoundHandler = void 0;
-const error_response_1 = require("../core/error.response");
-const notFoundHandler = (req, res, next) => {
-    const error = new error_response_1.NotFoundError("Not found");
-    next(error);
+exports.HttpErrorHandler = void 0;
+const routing_controllers_1 = require("routing-controllers");
+const typedi_1 = require("typedi");
+let HttpErrorHandler = class HttpErrorHandler {
+    error(error, request, response, next) {
+        if (error instanceof routing_controllers_1.HttpError) {
+            response.status(error.httpCode).json(error);
+        }
+        next(error);
+    }
 };
-exports.notFoundHandler = notFoundHandler;
-const errorHandler = (error, req, res, next) => {
-    const statusCode = error.status || 500;
-    return res.status(statusCode).json({
-        status: "error",
-        code: statusCode,
-        stack: error.stack,
-        message: error.message || "Internal Server Error",
-    });
-};
-exports.errorHandler = errorHandler;
+exports.HttpErrorHandler = HttpErrorHandler;
+exports.HttpErrorHandler = HttpErrorHandler = __decorate([
+    (0, typedi_1.Service)(),
+    (0, routing_controllers_1.Middleware)({ type: "after" })
+], HttpErrorHandler);
 //# sourceMappingURL=errorHandler.js.map

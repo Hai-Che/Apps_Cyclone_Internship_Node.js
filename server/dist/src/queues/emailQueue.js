@@ -27,7 +27,7 @@ const transporter = nodemailer_1.default.createTransport({
     service: "gmail",
     auth: {
         user: "mocung9723@gmail.com",
-        pass: process.env.GMAIL_PASSWORD,
+        pass: process.env.NODEMAILER_APP_PASS,
     },
 });
 const worker = new bullmq_1.Worker("emailQueue", (job) => __awaiter(void 0, void 0, void 0, function* () {
