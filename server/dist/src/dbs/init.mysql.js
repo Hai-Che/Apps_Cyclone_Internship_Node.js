@@ -27,7 +27,7 @@ class Database {
     connect() {
         MysqlDataSource.initialize()
             .then(() => {
-            console.log("Connect to mysqldb successfully");
+            console.log("Connect to MysqlDB successfully");
         })
             .catch((error) => console.log(error));
     }
@@ -38,7 +38,6 @@ class Database {
         return this._instance;
     }
 }
-const instanceMysql = Database.getInstance();
-exports.instanceMysql = instanceMysql;
+exports.instanceMysql = Database.getInstance();
 exports.default = MysqlDataSource;
 //# sourceMappingURL=init.mysql.js.map

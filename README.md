@@ -1,156 +1,101 @@
-# Task 9: Message Queues
+# Task 10: TypeDI
 
-#### Tìm hiểu Message Queues là gì?
-
-##### Khái niệm
-
-Message queue là một cơ chế trong lập trình và kiến trúc phần mềm, được sử dụng để truyền thông tin (thông điệp) giữa các thành phần của hệ thống mà không cần chúng tương tác trực tiếp với nhau.
-
-##### Các thành phần chính của Message Queue
-
-- Producer: bộ phân tạo ra thông tin để tương tác với bộ phận khác. Thông tin này sẽ được truyền vào Message queue.
-- Consumer:bộ phận/thành phần trong hệ thống nhận thông tin và xử lý thông tin từ Producer thông qua Message queue.
-- Message: Thông tin (thông điệp) thường ở dạng text hoặc JSON, đôi khi có thể là Binary do Producer tạo ra.
-- Message queue: Nơi lưu trữ tạm thời Message cho tới khi được Consumer lấy ra và xử lý.
-- Broker: Xử lý Message và quản lý Message queue để đảm bảo Producer và Consumer truyền thông tin được cho nhau. Broker giúp định tuyến thông tin, quản lý tình trạng của hàng đợi, và đảm bảo rằng thông tin được chuyển giao đúng cách.
-- Channel: Là cơ chế truyền thông tin giữa producer và consumer thông qua Message Queue. Channel đóng vai trò như một cầu nối để truyền thông điệp qua lại giữa các bên.
-
-##### Cách thức hoạt động của Message Queue:
-
-- Bước 1: Producer tạo ra thông điệp cần truyền đi. Thông tin này có thể là dữ liệu hoặc các thông tin bổ sung. Thông tin này sẽ được truyền vào Message queue thông qua channel và được lưu trữ tạm thời tại đây.
-- Bước 2: Consumer sẽ lấy thông điệp của Producer thông qua Message queue. Thông tin thường được được lấy theo cơ chế FIFO (first in - first out), tuy nhiên vẫn có thể can thiệp vào cơ chế này bằng cách định ra các ưu tiên.
-- Bước 3: Sau khi Consumer lấy được thông tin sẽ tiếp tục xử lý và thực hiện các hành động tuỳ thuộc vào yêu cầu của hệ thống.
-
-##### Ưu và nhược điểm của Message Queue:
-
-Ưu điểm:
-
-- Bất đồng bộ: Message Queue hỗ trợ truyền thông điệp giữa các thành phần mà không đòi hỏi chúng phải chờ đợi nhau. Điều này giúp cải thiện hiệu suất và tăng tính mở rộng của hệ thống.
-- Tính độc lập : Producer và consumer không cần biết về sự tồn tại của nhau. Sự phân tách này giúp giảm sự phụ thuộc giữa các thành phần và tăng khả năng mở rộng của hệ thống.
-- Xử lý lưu lượng cao: Message Queue có thể xử lý lượng thông điệp lớn và đồng thời từ nhiều nguồn mà không gây ảnh hưởng lớn đến hiệu suất của hệ thống.
-- Đảm bảo giao tiếp tin cậy: Hệ thống Message Queue thường có cơ chế đảm bảo rằng việc trao đổi thông tin giữa Producer và Consumer được chính xác và xử lý đúng cách.
-- Giảm lỗi chồng chéo : Message Queue giúp giảm lỗi chồng chéo bằng cách loại bỏ trực tiếp kết nối giữa các thành phần, giảm khả năng lỗi do sự phụ thuộc và giao tiếp trực tiếp.
-- Khả năng phục hồi: Do các thành phần hoạt động hoàn toàn độc lập với nhau nên khi một thành phần gặp sự cố thì thành phần kia vẫn có thể hoạt động bình thường. Việc bảo trì, sửa chữa hệ thống cũng không quá phức tạp.
-
-Nhược điểm:
-
-- Phức tạp hóa hệ thống: Sử dụng Message Queue có thể làm phức tạp hóa hệ thống và tốn kém. Đối với các hệ thống nhỏ, đôi khi triển khai Message queue là không cần thiết.
-- Độ trễ : Việc trao đổi thông tin bất đồng bộ giữa các thành phần sẽ có một độ trễ nhất định.
-- Chi phí xử lý: Message Queue sẽ tăng tải của hệ thống nếu phải xử lý lượng lớn thông tin.
-- Quản lý và theo dõi: Khi hệ thống có nhiều hàng đợi, hoặc có nhiều Producer/Consumer thì việc quản lý và theo dõi hoạt động của Message queue sẽ gặp nhiều khó khăn.
-- Khó xử lý đồng bộ: Khi hệ thống cần xử lý đồng bộ giữa các service thì Message queue không phải lựa chọn hàng đầu mà phải chọn các cơ chế khác phù hợp hơn như Rest hoặc rGPC
-
-##### Ứng dụng của Message Queue trong thực tế
-
-- Message được lưu giữ trong hàng đợi (queue) nên khi các thành phần xử lý gặp lỗi hoặc bộ phận trong hệ thống gặp sự cố thì không mất dữ liệu. Khi hệ thống được phục hồi thì có thể tiếp tục lấy message trong queue để xử lý tiếp.
-- Khi số lượng Message quá lớn, thì cơ chế xử lý bất đồng bộ sẽ phát huy hiệu quả. Các Message sẽ được xử lý dần dần cho tới khi hoàn tất mà không sợ bị thất thoát thông tin hoặc gây quá tải cho hệ thống.
-- Các thành phần hoạt động tách biệt nên dễ dàng mở rộng hệ thống. Trong thực tế có những thời điểm lượng message tăng cao thì có thể tăng lượng consumer lên để xử lý.
-
-#### Tìm hiểu cách sử dụng BullMQ ?
+#### Tìm hiểu Dependency Injection là gì?
 
 ##### Khái niệm
 
-Bull là một trong số các thư viện hỗ trợ message queue rất tốt trên NodeJS (bên cạnh RabbitMQ, Kafka, rsmq, agenda,...), và dựa trên Redis để lưu dữ liệu.
+Dependency Injection (DI) là một kỹ thuật trong lập trình phần mềm cho phép ta "tiêm" các phụ thuộc vào một thành phần thay vì định nghĩa chúng bên trong thành phần đó. DI giúp quản lý và tổ chức các phụ thuộc giữa các thành phần trong một hệ thống, giảm sự ràng buộc và tăng tính linh hoạt. Nói 1 cách đơn giản hơn thì Dependency Injection là một dạng design pattern được thiết kế với mục đích ngăn chặn sự phụ thuộc giữa các class, để khiến cho code dễ hiểu hơn, trực quan hơn, nhằm phục vụ cho mục đích bảo trì và nâng cấp code.
 
-##### Cách sử dụng BullMQ
+##### Các loại Dependency Injection
 
-- Tạo một queue và thêm các job vào queue
+- Constructor injection: là loại phổ biến nhất có tính mạnh mẽ và rõ ràng cao. Với loại Constructor Injection, các phụ thuộc được truyền vào thông qua các tham số của hàm khởi tạo của một lớp. Khi một đối tượng mới được tạo, các phụ thuộc được chuyển vào và được lưu trữ bởi đối tượng.
+- Setter injection: có tính linh hoạt hơn do loại DI này có thể thiết lập phụ thuộc tùy ý và thay đổi sau khi đối tượng đã được tạo. Setter Injection sẽ có các phụ thuộc được tiêm vào thông qua các phương thức thiết lập (setter methods) của một lớp. Sau khi đối tượng được tạo, các phương thức thiết lập được gọi để thiết lập các phụ thuộc.
+- Interface injection: là loại kém phổ biến và thường không được khuyến nghị. Với Interface Injection, một giao diện được sử dụng để định nghĩa một phương thức chung để tiêm các phụ thuộc. Lớp cần phụ thuộc sẽ implement giao diện này và triển khai phương thức tiêm phụ thuộc.
+
+##### Lợi ích và hạn chế khi dùng Dependency Injection
+
+Lợi ích:
+
+- Linh hoạt và giảm ràng buộc: DI làm giảm ràng buộc giữa các thành phần trong hệ thống. Thay vì các thành phần phải tạo ra các phụ thuộc của mình, chúng có thể nhận các phụ thuộc từ bên ngoài thông qua DI. Điều này tạo ra một cấu trúc mềm dẻo và cho phép chúng ta dễ dàng thay đổi và tái sử dụng các phụ thuộc, cũng như tách biệt logic và giao diện của thành phần.
+- Tăng khả năng kiểm tra: Bằng cách tiêm các phụ thuộc thông qua DI, người dùng có thể dễ dàng thay thế các phụ thuộc bằng các đối tượng giả (mock objects) để tạo ra các bài kiểm tra đơn vị riêng biệt và độc lập. Điều này giúp giảm sự phụ thuộc vào các thành phần khác và tạo ra các bài kiểm tra hiệu quả hơn.
+- Tăng tính mô-đun và dễ bảo trì: DI giúp tạo ra cấu trúc rõ ràng và tăng tính mô-đun trong hệ thống. Các thành phần trở nên đơn giản hơn và tách biệt hơn, vì chúng không cần biết chi tiết về việc khởi tạo các phụ thuộc của mình. Điều này giúp giảm sự rối loạn và làm cho mã nguồn dễ đọc, bảo trì và mở rộng hơn.
+- Khả năng mở rộng và tái sử dụng cao: DI làm giảm sự ràng buộc giữa các thành phần trong hệ thống. Thay vì chỉ có thể sử dụng một cách cứng nhắc, chúng ta có thể thay đổi hoặc thay thế các phụ thuộc một cách linh hoạt để đáp ứng các yêu cầu khác nhau hoặc môi trường khác nhau. Điều này giúp hệ thống trở nên linh hoạt hơn và dễ dàng thích ứng với sự thay đổi và mở rộng.
+
+Hạn chế:
+
+- Có sự ràng buộc về kiểu dữ liệu: Việc tạo ra các ràng buộc về kiểu dữ liệu giữa các thành phần có thể làm tăng sự phụ thuộc và giảm tính linh hoạt của hệ thống. Nếu các phụ thuộc thay đổi kiểu dữ liệu, cần phải điều chỉnh và cấu hình lại DI để đảm bảo tính tương thích.
+- Quản lý và cấu hình phức tạp: Quản lý và cấu hình DI container có thể trở nên phức tạp và đòi hỏi kiến thức sâu. Nếu thực hiện không đúng cách, quản lý và cấu hình DI sẽ gây rối loạn trong việc hiểu và bảo trì hệ thống.
+- Tăng độ phức tạp nếu sử dụng không đúng cách: Khi sử dụng DI sai quy cách, người dùng có thể đưa các phụ thuộc không cần thiết vào các thành phần và gây khó khăn trong việc quản lý cũng như hiệu năng của hệ thống. Điều này có thể xảy ra khi không tuân thủ nguyên tắc "Inversion of Control" hoặc khi sử dụng DI quá phức tạp và không cần thiết cho các thành phần đơn giản.
+- Nguy cơ tiềm ẩn vòng lặp phụ thuộc: Trong nhiều trường hợp sử dụng, người dùng có thể tạo ra vòng lặp phụ thuộc giữa các thành phần. Việc này gây ra các vấn đề về thứ tự khởi tạo và làm tăng độ phức tạp của hệ thống.
+
+#### Tìm hiểu cách Sử dụng TypeDI ?
+
+##### Khái niệm
+
+TypeDI là một công cụ tiêm phụ thuộc cho TypeScript và JavaScript, giúp ta xây dựng các ứng dụng có cấu trúc tốt và dễ dàng kiểm tra trong Node hoặc trong trình duyệt.
+
+##### Cách sử dụng TypeDI?
+
+Đầu tiên ta phải xác định các service mà được dùng để tiêm vào lớp khác. Sử dụng decorator @Service() để typeDI coi nó như 1 Service class, tự động tạo một bản sao của nó và tiêm bất cứ khi nào cần thiết.
+Ví dụ:
 
 ```js
-import { Queue } from "bullmq";
-
-const myQueue = new Queue("foo");
-async function addJobs() {
-  await myQueue.add("myJobName", { foo: "bar" });
-  await myQueue.add("myJobName", { qux: "baz" });
+import { Service } from "typedi";
+@Service()
+export class UserRepository {
+  someFunction = () => {};
 }
-await addJobs();
 ```
 
-- Tạo worker để xử lý các job trong queue
+Các cách sử dụng TypeDI:
+
+- Lấy từ global Container:
+  Ví dụ:
 
 ```js
-import { Worker } from "bullmq";
-const worker = new Worker("foo", async (job) => {
-  console.log(job.data);
-});
+import { UserRepository } from "./UserRepository";
+import { Service, Inject, Container } from "typedi";
+
+@Service()
+export class UserService {
+  logUserData = () => {
+    const userRepo = Container.get(UserRepository);
+    userRepo.someFunction();
+  };
+}
 ```
 
-- Lắng nghe sự thay đổi từ các job được xử lý:
+- Tiêm vào lớp
+  Ví dụ:
 
 ```js
-worker.on("completed", (job) => {
-  console.log(`${job.id} has completed!`);
-});
+import { UserRepository } from "./UserRepository";
+import { Service, Inject, Container } from "typedi";
 
-worker.on("failed", (job, err) => {
-  console.log(`${job.id} has failed with ${err.message}`);
-});
+@Service()
+export class UserService {
+  @Inject()
+  userRepo: UserRepository;
+
+  logUserData = () => {
+    this.userRepo.someFunction();
+  };
+}
 ```
 
-- Sử dụng class QueueEvents để lắng nghe sự thay đổi từ các worker được chỉ định.
+- Sử dụng Constructor:
 
 ```js
-import { QueueEvents } from "bullmq";
+import { UserRepository } from "./UserRepository";
+import { Service, Inject, Container } from "typedi";
 
-const queueEvents = new QueueEvents();
+@Service()
+export class UserService {
 
-queueEvents.on("waiting", ({ jobId }) => {
-  console.log(`A job with ID ${jobId} is waiting`);
-});
+  constructor(public userRepo: UserRepository) {}
 
-queueEvents.on("active", ({ jobId, prev }) => {
-  console.log(`Job ${jobId} is now active; previous status was ${prev}`);
-});
-
-queueEvents.on("completed", ({ jobId, returnvalue }) => {
-  console.log(`${jobId} has completed and returned ${returnvalue}`);
-});
-
-queueEvents.on("failed", ({ jobId, failedReason }) => {
-  console.log(`${jobId} has failed with reason ${failedReason}`);
-});
-```
-
-#### Tìm hiểu cách sử dụng bull-board ?
-
-##### Khái niệm
-
-Bull Dashboard là một giao diện người dùng được xây dựng trên Bull hoặc BullMQ giúp ta có cái nhìn trực quan về các queue và job trong hệ thống.
-
-##### Cách sử dụng bull-board?
-
-- Set up bull-board:
-
-```js
-import { createBullBoard } from "@bull-board/api";
-import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
-import { ExpressAdapter } from "@bull-board/express";
-import { emailQueue } from "../../queues/emailQueue";
-
-const serverAdapter = new ExpressAdapter();
-serverAdapter.setBasePath("/api/admin/queues"); // Set path
-
-createBullBoard({
-  queues: [new BullMQAdapter(emailQueue)], // Set queue
-  serverAdapter: serverAdapter,
-});
-
-export default serverAdapter;
-```
-
-- Cập nhật lại router
-
-```js
-import express from "express";
-import accessRoute from "./access/index";
-import userRoute from "./user/index";
-import queueRoute from "./queue";
-const router = express.Router();
-
-router.use("/admin/queues", queueRoute.getRouter());
-router.use("/", accessRoute);
-router.use("/", userRoute);
-
-export default router;
+  logUserData = () => {
+    this.userRepo.someFunction();
+  };
+}
 ```

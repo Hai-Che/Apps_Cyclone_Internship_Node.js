@@ -28,5 +28,4 @@ class Database {
     return this._instance;
   }
 }
-const instanceMongoDB = Database.getInstance();
-export { instanceMongoDB };
+export const instanceMongoDB = Database.getInstance();

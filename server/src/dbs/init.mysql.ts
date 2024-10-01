@@ -27,7 +27,7 @@ class Database {
   connect() {
     MysqlDataSource.initialize()
       .then(() => {
-        console.log("Connect to mysqldb successfully");
+        console.log("Connect to MysqlDB successfully");
       })
       .catch((error) => console.log(error));
   }
@@ -38,7 +38,5 @@ class Database {
     return this._instance;
   }
 }
-const instanceMysql = Database.getInstance();
-
-export { instanceMysql };
+export const instanceMysql = Database.getInstance();
 export default MysqlDataSource;

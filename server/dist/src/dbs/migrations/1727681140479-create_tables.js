@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AddSaltFieldInUserTable1727258334171 = void 0;
-class AddSaltFieldInUserTable1727258334171 {
+exports.CreateTables1727681140479 = void 0;
+class CreateTables1727681140479 {
     constructor() {
-        this.name = 'AddSaltFieldInUserTable1727258334171';
+        this.name = 'CreateTables1727681140479';
     }
     up(queryRunner) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -27,5 +27,5 @@ class AddSaltFieldInUserTable1727258334171 {
         });
     }
 }
-exports.AddSaltFieldInUserTable1727258334171 = AddSaltFieldInUserTable1727258334171;
-//# sourceMappingURL=1727258334171-Add_salt_field_in_user_table.js.map
+exports.CreateTables1727681140479 = CreateTables1727681140479;
+//# sourceMappingURL=1727681140479-create_tables.js.map

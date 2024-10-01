@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import "dotenv/config";
-import MysqlDataSource from "../../dbs/init.mysql";
 import redisClient from "../../dbs/init.redis";
 import { BadRequestError, UnauthorizedError } from "routing-controllers";
 import { emailQueue } from "../../queues/emailQueue";
@@ -8,12 +7,17 @@ import { createAccessToken, createTokenPair } from "../../utils/generateToken";
 import { User } from "../../entities/user.entity";
 import { UserAdvance } from "../../entities/userAdvance.entity";
 import { v4 as uuidv4 } from "uuid";
-import { Service } from "typedi";
-const userRepository = MysqlDataSource.getRepository(User);
-const userAdvanceRepository = MysqlDataSource.getRepository(UserAdvance);
+import { Inject, Service } from "typedi";
+import { Repository } from "typeorm";
 
 @Service()
 export class AccessService {
+  constructor(
+    @Inject("UserRepository") private userRepository: Repository<User>,
+    @Inject("UserAdvanceRepository")
+    private userAdvanceRepository: Repository<UserAdvance>
+  ) {}
+
   async register({
     userName,
     password,
@@ -26,7 +30,7 @@ export class AccessService {
     dob,
     profileUrl,
   }) {
-    const checkUser = await userRepository.findOne({
+    const checkUser = await this.userRepository.findOne({
       where: { userName },
     });
     if (checkUser) {
@@ -34,7 +38,7 @@ export class AccessService {
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await userRepository.save({
+    const newUser = await this.userRepository.save({
       userName,
       password: hashedPassword,
       uass,
@@ -47,7 +51,7 @@ export class AccessService {
     if (!newUser) {
       throw new BadRequestError("Failed to create user");
     }
-    const newUserAdvance = await userAdvanceRepository.save({
+    const newUserAdvance = await this.userAdvanceRepository.save({
       userId: newUser.userId,
       address,
       dob,
@@ -65,7 +69,7 @@ export class AccessService {
   }
 
   async login({ userName, password }) {
-    const findUser = await userRepository.findOne({ where: { userName } });
+    const findUser = await this.userRepository.findOne({ where: { userName } });
     if (!findUser) {
       throw new BadRequestError(`User is not exist`);
     }
@@ -98,7 +102,7 @@ export class AccessService {
     };
   }
   async handleRefreshToken(userId: number, sessionId: string) {
-    const findUser = await userRepository.findOne({ where: { userId } });
+    const findUser = await this.userRepository.findOne({ where: { userId } });
     if (!findUser) {
       throw new BadRequestError(`User is not exist`);
     }

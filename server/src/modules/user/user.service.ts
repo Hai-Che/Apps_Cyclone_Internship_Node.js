@@ -1,25 +1,28 @@
 import { BadRequestError, ForbiddenError } from "routing-controllers";
-import MysqlDataSource from "../../dbs/init.mysql";
 import { User } from "../../entities/user.entity";
 import { UserAdvance } from "../../entities/userAdvance.entity";
-import { Service } from "typedi";
-
-const userRepository = MysqlDataSource.getRepository(User);
-const userAdvanceRepository = MysqlDataSource.getRepository(UserAdvance);
+import { Inject, Service } from "typedi";
+import { Repository } from "typeorm";
 
 @Service()
 export class UserService {
+  constructor(
+    @Inject("UserRepository") private userRepository: Repository<User>,
+    @Inject("UserAdvanceRepository")
+    private userAdvanceRepository: Repository<UserAdvance>
+  ) {}
+
   async getUser(userId: number, currentUserId: number) {
     if (userId !== currentUserId) {
       throw new ForbiddenError("Can't get info another user");
     }
-    const user = await userRepository.findOne({
+    const user = await this.userRepository.findOne({
       where: { userId },
     });
     if (!user) {
       throw new BadRequestError("User does not existed");
     }
-    const userAdvance = await userAdvanceRepository.findOne({
+    const userAdvance = await this.userAdvanceRepository.findOne({
       where: { userId },
     });
     return { user, userAdvance };
@@ -43,7 +46,7 @@ export class UserService {
     if (userId !== currentUserId) {
       throw new ForbiddenError("Can't update another user");
     }
-    const user = await userRepository.findOne({ where: { userId } });
+    const user = await this.userRepository.findOne({ where: { userId } });
     if (!user) {
       throw new BadRequestError("User not found");
     }
@@ -65,8 +68,8 @@ export class UserService {
     if (phoneNumber) {
       user.phoneNumber = phoneNumber;
     }
-    await userRepository.save(user);
-    let userAdvance = await userAdvanceRepository.findOne({
+    await this.userRepository.save(user);
+    let userAdvance = await this.userAdvanceRepository.findOne({
       where: { userId },
     });
     if (!userAdvance) {
@@ -82,24 +85,24 @@ export class UserService {
     if (profileUrl) {
       userAdvance.profileUrl = profileUrl;
     }
-    await userAdvanceRepository.save(userAdvance);
+    await this.userAdvanceRepository.save(userAdvance);
     return { user, userAdvance };
   }
   async deleteUser(userId: number, currentUserId: number) {
     if (userId != currentUserId) {
       throw new ForbiddenError("Can't delete another user");
     }
-    const userAdvance = await userAdvanceRepository.findOne({
+    const userAdvance = await this.userAdvanceRepository.findOne({
       where: { userId },
     });
     if (userAdvance) {
-      await userAdvanceRepository.remove(userAdvance);
+      await this.userAdvanceRepository.remove(userAdvance);
     }
-    const user = await userRepository.findOne({ where: { userId } });
+    const user = await this.userRepository.findOne({ where: { userId } });
     if (!user) {
       throw new BadRequestError("User not found.");
     }
-    await userRepository.remove(user);
+    await this.userRepository.remove(user);
 
     return { message: "User deleted successfully." };
   }

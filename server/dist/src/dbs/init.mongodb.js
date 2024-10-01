@@ -30,6 +30,5 @@ class Database {
         return this._instance;
     }
 }
-const instanceMongoDB = Database.getInstance();
-exports.instanceMongoDB = instanceMongoDB;
+exports.instanceMongoDB = Database.getInstance();
 //# sourceMappingURL=init.mongodb.js.map

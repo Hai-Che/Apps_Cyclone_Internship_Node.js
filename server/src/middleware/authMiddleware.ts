@@ -5,9 +5,11 @@ import {
 } from "routing-controllers";
 import { Request, Response, NextFunction } from "express";
 import { Service } from "typedi";
-import { getUserById } from "../modules/user/user.repo";
+import { User } from "../entities/user.entity";
 import jwt from "jsonwebtoken";
 import redisClient from "../dbs/init.redis";
+import MysqlDataSource from "../dbs/init.mysql";
+const userRepository = MysqlDataSource.getRepository(User);
 
 interface AuthenticatedRequest extends Request {
   userId?: string;
@@ -34,7 +36,7 @@ export class AuthMiddleware implements ExpressMiddlewareInterface {
     try {
       const decodeUser = jwt.decode(accessToken, { complete: true });
       const userId = decodeUser.payload.userId;
-      const findUser = await getUserById(userId);
+      const findUser = await userRepository.findOne({ where: { userId } });
       if (!findUser) {
         throw new UnauthorizedError("User not found");
       }
@@ -63,7 +65,7 @@ export class RefreshTokenMiddleware implements ExpressMiddlewareInterface {
     try {
       const decodeUser = jwt.decode(refreshToken, { complete: true });
       const userId = decodeUser.payload.userId;
-      const findUser = await getUserById(userId);
+      const findUser = await userRepository.findOne({ where: { userId } });
       if (!findUser) {
         throw new UnauthorizedError("User not found");
       }

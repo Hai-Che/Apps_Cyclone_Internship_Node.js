@@ -44,6 +44,7 @@
     "routing-controllers": "^0.10.4",
     "typedi": "^0.10.0",
     "typeorm": "^0.3.20",
+    "typeorm-typedi-extensions": "^0.4.1",
     "uuid": "^10.0.0"
   }
 }

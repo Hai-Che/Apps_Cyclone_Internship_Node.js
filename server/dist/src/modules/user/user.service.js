@@ -5,6 +5,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -14,31 +20,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserService = void 0;
 const routing_controllers_1 = require("routing-controllers");
-const init_mysql_1 = __importDefault(require("../../dbs/init.mysql"));
-const user_entity_1 = require("../../entities/user.entity");
 const userAdvance_entity_1 = require("../../entities/userAdvance.entity");
 const typedi_1 = require("typedi");
-const userRepository = init_mysql_1.default.getRepository(user_entity_1.User);
-const userAdvanceRepository = init_mysql_1.default.getRepository(userAdvance_entity_1.UserAdvance);
+const typeorm_1 = require("typeorm");
 let UserService = class UserService {
+    constructor(userRepository, userAdvanceRepository) {
+        this.userRepository = userRepository;
+        this.userAdvanceRepository = userAdvanceRepository;
+    }
     getUser(userId, currentUserId) {
         return __awaiter(this, void 0, void 0, function* () {
             if (userId !== currentUserId) {
                 throw new routing_controllers_1.ForbiddenError("Can't get info another user");
             }
-            const user = yield userRepository.findOne({
+            const user = yield this.userRepository.findOne({
                 where: { userId },
             });
             if (!user) {
                 throw new routing_controllers_1.BadRequestError("User does not existed");
             }
-            const userAdvance = yield userAdvanceRepository.findOne({
+            const userAdvance = yield this.userAdvanceRepository.findOne({
                 where: { userId },
             });
             return { user, userAdvance };
@@ -49,7 +53,7 @@ let UserService = class UserService {
             if (userId !== currentUserId) {
                 throw new routing_controllers_1.ForbiddenError("Can't update another user");
             }
-            const user = yield userRepository.findOne({ where: { userId } });
+            const user = yield this.userRepository.findOne({ where: { userId } });
             if (!user) {
                 throw new routing_controllers_1.BadRequestError("User not found");
             }
@@ -71,8 +75,8 @@ let UserService = class UserService {
             if (phoneNumber) {
                 user.phoneNumber = phoneNumber;
             }
-            yield userRepository.save(user);
-            let userAdvance = yield userAdvanceRepository.findOne({
+            yield this.userRepository.save(user);
+            let userAdvance = yield this.userAdvanceRepository.findOne({
                 where: { userId },
             });
             if (!userAdvance) {
@@ -88,7 +92,7 @@ let UserService = class UserService {
             if (profileUrl) {
                 userAdvance.profileUrl = profileUrl;
             }
-            yield userAdvanceRepository.save(userAdvance);
+            yield this.userAdvanceRepository.save(userAdvance);
             return { user, userAdvance };
         });
     }
@@ -97,23 +101,27 @@ let UserService = class UserService {
             if (userId != currentUserId) {
                 throw new routing_controllers_1.ForbiddenError("Can't delete another user");
             }
-            const userAdvance = yield userAdvanceRepository.findOne({
+            const userAdvance = yield this.userAdvanceRepository.findOne({
                 where: { userId },
             });
             if (userAdvance) {
-                yield userAdvanceRepository.remove(userAdvance);
+                yield this.userAdvanceRepository.remove(userAdvance);
             }
-            const user = yield userRepository.findOne({ where: { userId } });
+            const user = yield this.userRepository.findOne({ where: { userId } });
             if (!user) {
                 throw new routing_controllers_1.BadRequestError("User not found.");
             }
-            yield userRepository.remove(user);
+            yield this.userRepository.remove(user);
             return { message: "User deleted successfully." };
         });
     }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([
-    (0, typedi_1.Service)()
+    (0, typedi_1.Service)(),
+    __param(0, (0, typedi_1.Inject)("UserRepository")),
+    __param(1, (0, typedi_1.Inject)("UserAdvanceRepository")),
+    __metadata("design:paramtypes", [typeorm_1.Repository,
+        typeorm_1.Repository])
 ], UserService);
 //# sourceMappingURL=user.service.js.map

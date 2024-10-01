@@ -21,9 +21,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RefreshTokenMiddleware = exports.AuthMiddleware = void 0;
 const routing_controllers_1 = require("routing-controllers");
 const typedi_1 = require("typedi");
-const user_repo_1 = require("../modules/user/user.repo");
+const user_entity_1 = require("../entities/user.entity");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const init_redis_1 = __importDefault(require("../dbs/init.redis"));
+const init_mysql_1 = __importDefault(require("../dbs/init.mysql"));
+const userRepository = init_mysql_1.default.getRepository(user_entity_1.User);
 const HEADER = {
     AUTHORIZATION: "authorization",
     REFRESH_TOKEN: "x-rtoken-id",
@@ -38,7 +40,7 @@ let AuthMiddleware = class AuthMiddleware {
             try {
                 const decodeUser = jsonwebtoken_1.default.decode(accessToken, { complete: true });
                 const userId = decodeUser.payload.userId;
-                const findUser = yield (0, user_repo_1.getUserById)(userId);
+                const findUser = yield userRepository.findOne({ where: { userId } });
                 if (!findUser) {
                     throw new routing_controllers_1.UnauthorizedError("User not found");
                 }
@@ -68,7 +70,7 @@ let RefreshTokenMiddleware = class RefreshTokenMiddleware {
             try {
                 const decodeUser = jsonwebtoken_1.default.decode(refreshToken, { complete: true });
                 const userId = decodeUser.payload.userId;
-                const findUser = yield (0, user_repo_1.getUserById)(userId);
+                const findUser = yield userRepository.findOne({ where: { userId } });
                 if (!findUser) {
                     throw new routing_controllers_1.UnauthorizedError("User not found");
                 }
