@@ -6,6 +6,18 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 
+enum UserRole {
+  User = "User",
+  Admin = "Admin",
+  Moderator = "Moderator",
+}
+
+enum Gender {
+  Male = "Male",
+  Female = "Female",
+  Others = "Others",
+}
+
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -58,6 +70,7 @@ export class User {
     charset: "utf8mb4",
     collation: "utf8mb4_general_ci",
     nullable: true,
+    unique: true,
   })
   email: string;
 
@@ -84,4 +97,18 @@ export class User {
 
   @Column({ nullable: true })
   salt: string;
+
+  @Column({
+    type: "enum",
+    enum: UserRole,
+    default: UserRole.User,
+  })
+  role: UserRole;
+
+  @Column({
+    type: "enum",
+    enum: Gender,
+    default: Gender.Male,
+  })
+  gender: Gender;
 }

@@ -3,10 +3,12 @@ import {
   IsDate,
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
   Matches,
   MaxLength,
+  MinLength,
 } from "class-validator";
 
 export class RegisterUserDto {
@@ -16,6 +18,7 @@ export class RegisterUserDto {
   userName: string;
 
   @IsNotEmpty()
+  @MinLength(6)
   password: string;
 
   @IsString()
@@ -33,6 +36,7 @@ export class RegisterUserDto {
   fullName: string;
 
   @IsEmail()
+  @Matches(RegExp(/[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}/gim))
   email: string;
 
   @IsString()
@@ -58,33 +62,48 @@ export class UpdateUserDto {
   @Matches(RegExp("^[a-zA-Z0-9]{6,}$"))
   userName: string;
 
+  @IsOptional()
+  @MinLength(6)
+  password: string;
+
+  @IsOptional()
   @IsString()
   @MaxLength(255)
   uass: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsUUID()
   @MaxLength(36)
   uuid: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(128)
   @Matches(RegExp("^[a-zA-Zs]{6,64}$"))
   fullName: string;
 
   @IsEmail()
+  @Matches(RegExp(/[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}/gim))
   email: string;
 
+  @IsOptional()
   @IsString()
   phoneNumber: string;
 
+  @IsOptional()
   @IsString()
+  @Matches(RegExp("^[a-zA-Zs]{6,64}$"))
   address: string;
 
+  @IsOptional()
   @IsDate()
   @Type(() => Date)
   dob: Date;
 
+  @IsOptional()
   @IsString()
   profileUrl: string;
+
+  @IsOptional()
+  @IsString()
+  gender: string;
 }

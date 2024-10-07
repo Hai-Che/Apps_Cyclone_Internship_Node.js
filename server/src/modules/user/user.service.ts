@@ -3,6 +3,10 @@ import { User } from "../../entities/user.entity";
 import { UserAdvance } from "../../entities/userAdvance.entity";
 import { Inject, Service } from "typedi";
 import { Repository } from "typeorm";
+import bcrypt from "bcrypt";
+import { v4 as uuidv4 } from "uuid";
+import { createTokenPair } from "../../utils/generateObject";
+import redisClient from "../../dbs/init.redis";
 
 @Service()
 export class UserService {
@@ -32,6 +36,7 @@ export class UserService {
     {
       userId,
       userName,
+      password,
       uass,
       uuid,
       fullName,
@@ -40,6 +45,7 @@ export class UserService {
       address,
       dob,
       profileUrl,
+      gender,
     },
     currentUserId: number
   ) {
@@ -49,6 +55,31 @@ export class UserService {
     const user = await this.userRepository.findOne({ where: { userId } });
     if (!user) {
       throw new BadRequestError("User not found");
+    }
+    let tokens;
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+      user.salt = salt;
+      const sessionId = uuidv4();
+      tokens = await createTokenPair(
+        { userId, sessionId },
+        `${salt}at`,
+        `${salt}rt`
+      );
+      await redisClient.set(
+        `accessToken:${userId}:${sessionId}`,
+        tokens.accessToken,
+        "EX",
+        30
+      );
+      await redisClient.set(
+        `refreshToken:${userId}:${sessionId}`,
+        tokens.refreshToken,
+        "EX",
+        300
+      );
     }
     if (userName) {
       user.userName = userName;
@@ -68,6 +99,9 @@ export class UserService {
     if (phoneNumber) {
       user.phoneNumber = phoneNumber;
     }
+    if (gender) {
+      user.gender = phoneNumber;
+    }
     await this.userRepository.save(user);
     let userAdvance = await this.userAdvanceRepository.findOne({
       where: { userId },
@@ -86,7 +120,7 @@ export class UserService {
       userAdvance.profileUrl = profileUrl;
     }
     await this.userAdvanceRepository.save(userAdvance);
-    return { user, userAdvance };
+    return { user, userAdvance, tokens };
   }
   async deleteUser(userId: number, currentUserId: number) {
     if (userId != currentUserId) {

@@ -12,7 +12,16 @@ const typedi_1 = require("typedi");
 let HttpErrorHandler = class HttpErrorHandler {
     error(error, request, response, next) {
         if (error instanceof routing_controllers_1.HttpError) {
-            response.status(error.httpCode).json(error);
+            response.status(error.httpCode).json({
+                status: error.httpCode,
+                message: error.message,
+            });
+        }
+        else {
+            response.status(500).json({
+                status: 500,
+                message: "Internal Server Error",
+            });
         }
         next(error);
     }

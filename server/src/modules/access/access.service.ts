@@ -3,7 +3,10 @@ import "dotenv/config";
 import redisClient from "../../dbs/init.redis";
 import { BadRequestError, UnauthorizedError } from "routing-controllers";
 import { emailQueue } from "../../queues/emailQueue";
-import { createAccessToken, createTokenPair } from "../../utils/generateToken";
+import {
+  createTokenPair,
+  generateVerificationCode,
+} from "../../utils/generateObject";
 import { User } from "../../entities/user.entity";
 import { UserAdvance } from "../../entities/userAdvance.entity";
 import { v4 as uuidv4 } from "uuid";
@@ -60,16 +63,23 @@ export class AccessService {
     if (!newUserAdvance) {
       throw new BadRequestError("Failed to create user advance");
     }
+    const verifyCode = generateVerificationCode();
+    await redisClient.set(
+      `verification:${newUser.userId}`,
+      verifyCode,
+      "EX",
+      3600
+    );
     await emailQueue.add("sendEmail", {
       email: email,
       subject: "Register successfully",
-      text: `Dear ${userName},\n\n Welcome!`,
+      text: `Dear ${userName},\n\n Welcome to my service. This is your verification code valid in 1 hour, active your account with it! ${verifyCode}`,
     });
     return { user: newUser, userAdvance: newUserAdvance };
   }
 
-  async login({ userName, password }) {
-    const findUser = await this.userRepository.findOne({ where: { userName } });
+  async login({ email, password }) {
+    const findUser = await this.userRepository.findOne({ where: { email } });
     if (!findUser) {
       throw new BadRequestError(`User is not exist`);
     }
@@ -96,9 +106,11 @@ export class AccessService {
       300
     );
     return {
-      user: findUser,
-      tokens,
-      sessionId,
+      data: {
+        user: findUser,
+        tokens,
+        sessionId,
+      },
     };
   }
   async handleRefreshToken(userId: number, sessionId: string) {
@@ -106,22 +118,40 @@ export class AccessService {
     if (!findUser) {
       throw new BadRequestError(`User is not exist`);
     }
-    const accessToken = await createAccessToken(
+    const tokens = await createTokenPair(
       { userId, sessionId },
-      `${findUser.salt}at`
+      `${findUser.salt}at`,
+      `${findUser.salt}rt`
     );
     await redisClient.set(
       `accessToken:${userId}:${sessionId}`,
-      accessToken,
+      tokens.accessToken,
       "EX",
       30
     );
-    return { accessToken };
+    await redisClient.set(
+      `refreshToken:${userId}:${sessionId}`,
+      tokens.refreshToken,
+      "EX",
+      300
+    );
+    return { tokens };
   }
 
   async logout(userId: number, sessionId: string) {
     await redisClient.del(`accessToken:${userId}:${sessionId}`);
+    await redisClient.del(`refreshToken:${userId}:${sessionId}`);
 
     return { message: "Logout successful" };
+  }
+
+  async verify({ userId, verificationCode }) {
+    const storedCode = await redisClient.get(`verification:${userId}`);
+    if (storedCode === verificationCode) {
+      await redisClient.del(`verification:${userId}`);
+      return { message: "Verify successfully!" };
+    } else {
+      throw new UnauthorizedError("Failed to validate code");
+    }
   }
 }

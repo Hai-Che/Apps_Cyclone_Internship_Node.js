@@ -11,6 +11,18 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const typeorm_1 = require("typeorm");
+var UserRole;
+(function (UserRole) {
+    UserRole["User"] = "User";
+    UserRole["Admin"] = "Admin";
+    UserRole["Moderator"] = "Moderator";
+})(UserRole || (UserRole = {}));
+var Gender;
+(function (Gender) {
+    Gender["Male"] = "Male";
+    Gender["Female"] = "Female";
+    Gender["Others"] = "Others";
+})(Gender || (Gender = {}));
 let User = class User {
 };
 exports.User = User;
@@ -71,6 +83,7 @@ __decorate([
         charset: "utf8mb4",
         collation: "utf8mb4_general_ci",
         nullable: true,
+        unique: true,
     }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
@@ -104,6 +117,22 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "salt", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: "enum",
+        enum: UserRole,
+        default: UserRole.User,
+    }),
+    __metadata("design:type", String)
+], User.prototype, "role", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
+        type: "enum",
+        enum: Gender,
+        default: Gender.Male,
+    }),
+    __metadata("design:type", String)
+], User.prototype, "gender", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)()
 ], User);

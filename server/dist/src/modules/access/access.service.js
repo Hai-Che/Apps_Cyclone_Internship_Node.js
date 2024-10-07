@@ -30,7 +30,7 @@ require("dotenv/config");
 const init_redis_1 = __importDefault(require("../../dbs/init.redis"));
 const routing_controllers_1 = require("routing-controllers");
 const emailQueue_1 = require("../../queues/emailQueue");
-const generateToken_1 = require("../../utils/generateToken");
+const generateObject_1 = require("../../utils/generateObject");
 const uuid_1 = require("uuid");
 const typedi_1 = require("typedi");
 const typeorm_1 = require("typeorm");
@@ -71,17 +71,19 @@ let AccessService = class AccessService {
             if (!newUserAdvance) {
                 throw new routing_controllers_1.BadRequestError("Failed to create user advance");
             }
+            const verifyCode = (0, generateObject_1.generateVerificationCode)();
+            yield init_redis_1.default.set(`verification:${newUser.userId}`, verifyCode, "EX", 3600);
             yield emailQueue_1.emailQueue.add("sendEmail", {
                 email: email,
                 subject: "Register successfully",
-                text: `Dear ${userName},\n\n Welcome!`,
+                text: `Dear ${userName},\n\n Welcome to my service. This is your verification code valid in 1 hour, active your account with it! ${verifyCode}`,
             });
             return { user: newUser, userAdvance: newUserAdvance };
         });
     }
     login(_a) {
-        return __awaiter(this, arguments, void 0, function* ({ userName, password }) {
-            const findUser = yield this.userRepository.findOne({ where: { userName } });
+        return __awaiter(this, arguments, void 0, function* ({ email, password }) {
+            const findUser = yield this.userRepository.findOne({ where: { email } });
             if (!findUser) {
                 throw new routing_controllers_1.BadRequestError(`User is not exist`);
             }
@@ -90,13 +92,15 @@ let AccessService = class AccessService {
                 throw new routing_controllers_1.UnauthorizedError("Authenticated error");
             }
             const sessionId = (0, uuid_1.v4)();
-            const tokens = yield (0, generateToken_1.createTokenPair)({ userId: findUser.userId, sessionId }, `${findUser.salt}at`, `${findUser.salt}rt`);
+            const tokens = yield (0, generateObject_1.createTokenPair)({ userId: findUser.userId, sessionId }, `${findUser.salt}at`, `${findUser.salt}rt`);
             yield init_redis_1.default.set(`accessToken:${findUser.userId}:${sessionId}`, tokens.accessToken, "EX", 30);
             yield init_redis_1.default.set(`refreshToken:${findUser.userId}:${sessionId}`, tokens.refreshToken, "EX", 300);
             return {
-                user: findUser,
-                tokens,
-                sessionId,
+                data: {
+                    user: findUser,
+                    tokens,
+                    sessionId,
+                },
             };
         });
     }
@@ -106,15 +110,29 @@ let AccessService = class AccessService {
             if (!findUser) {
                 throw new routing_controllers_1.BadRequestError(`User is not exist`);
             }
-            const accessToken = yield (0, generateToken_1.createAccessToken)({ userId, sessionId }, `${findUser.salt}at`);
-            yield init_redis_1.default.set(`accessToken:${userId}:${sessionId}`, accessToken, "EX", 30);
-            return { accessToken };
+            const tokens = yield (0, generateObject_1.createTokenPair)({ userId, sessionId }, `${findUser.salt}at`, `${findUser.salt}rt`);
+            yield init_redis_1.default.set(`accessToken:${userId}:${sessionId}`, tokens.accessToken, "EX", 30);
+            yield init_redis_1.default.set(`refreshToken:${userId}:${sessionId}`, tokens.refreshToken, "EX", 300);
+            return { tokens };
         });
     }
     logout(userId, sessionId) {
         return __awaiter(this, void 0, void 0, function* () {
             yield init_redis_1.default.del(`accessToken:${userId}:${sessionId}`);
+            yield init_redis_1.default.del(`refreshToken:${userId}:${sessionId}`);
             return { message: "Logout successful" };
+        });
+    }
+    verify(_a) {
+        return __awaiter(this, arguments, void 0, function* ({ userId, verificationCode }) {
+            const storedCode = yield init_redis_1.default.get(`verification:${userId}`);
+            if (storedCode === verificationCode) {
+                yield init_redis_1.default.del(`verification:${userId}`);
+                return { message: "Verify successfully!" };
+            }
+            else {
+                throw new routing_controllers_1.UnauthorizedError("Failed to validate code");
+            }
         });
     }
 };

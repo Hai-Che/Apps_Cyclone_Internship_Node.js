@@ -11,6 +11,7 @@ import {
   RefreshTokenMiddleware,
 } from "../../middleware/authMiddleware";
 import { RegisterUserDto } from "../user/user.dto";
+import { UserLoginDto, VerifyUserDto } from "./access.dto";
 import { Service } from "typedi";
 
 @Service()
@@ -23,7 +24,7 @@ export class AccessController {
   }
 
   @Post("/login")
-  login(@Body() body: any) {
+  login(@Body() body: UserLoginDto) {
     return this.accessService.login(body);
   }
 
@@ -39,5 +40,10 @@ export class AccessController {
   handleRefreshToken(@Req() request: any) {
     const { userId, sessionId } = request;
     return this.accessService.handleRefreshToken(userId, sessionId);
+  }
+
+  @Post("/verify")
+  verify(@Body() body: VerifyUserDto) {
+    return this.accessService.verify(body);
   }
 }

@@ -17,6 +17,7 @@ const routing_controllers_1 = require("routing-controllers");
 const access_service_1 = require("./access.service");
 const authMiddleware_1 = require("../../middleware/authMiddleware");
 const user_dto_1 = require("../user/user.dto");
+const access_dto_1 = require("./access.dto");
 const typedi_1 = require("typedi");
 let AccessController = class AccessController {
     constructor(accessService) {
@@ -36,6 +37,9 @@ let AccessController = class AccessController {
         const { userId, sessionId } = request;
         return this.accessService.handleRefreshToken(userId, sessionId);
     }
+    verify(body) {
+        return this.accessService.verify(body);
+    }
 };
 exports.AccessController = AccessController;
 __decorate([
@@ -49,7 +53,7 @@ __decorate([
     (0, routing_controllers_1.Post)("/login"),
     __param(0, (0, routing_controllers_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [access_dto_1.UserLoginDto]),
     __metadata("design:returntype", void 0)
 ], AccessController.prototype, "login", null);
 __decorate([
@@ -68,6 +72,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AccessController.prototype, "handleRefreshToken", null);
+__decorate([
+    (0, routing_controllers_1.Post)("/verify"),
+    __param(0, (0, routing_controllers_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [access_dto_1.VerifyUserDto]),
+    __metadata("design:returntype", void 0)
+], AccessController.prototype, "verify", null);
 exports.AccessController = AccessController = __decorate([
     (0, typedi_1.Service)(),
     (0, routing_controllers_1.JsonController)("/access"),

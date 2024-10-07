@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
 export const createTokenPair = async (payload, accessKey, refreshKey) => {
   try {
     const accessToken = await jwt.sign(payload, accessKey, {
@@ -13,13 +14,6 @@ export const createTokenPair = async (payload, accessKey, refreshKey) => {
   }
 };
 
-export const createAccessToken = async (payload, accessKey) => {
-  try {
-    const accessToken = await jwt.sign(payload, accessKey, {
-      expiresIn: "30s",
-    });
-    return accessToken;
-  } catch (error) {
-    throw error;
-  }
+export const generateVerificationCode = () => {
+  return uuidv4().substring(0, 4).toUpperCase();
 };

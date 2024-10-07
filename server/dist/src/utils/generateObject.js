@@ -12,8 +12,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAccessToken = exports.createTokenPair = void 0;
+exports.generateVerificationCode = exports.createTokenPair = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const uuid_1 = require("uuid");
 const createTokenPair = (payload, accessKey, refreshKey) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const accessToken = yield jsonwebtoken_1.default.sign(payload, accessKey, {
@@ -29,16 +30,8 @@ const createTokenPair = (payload, accessKey, refreshKey) => __awaiter(void 0, vo
     }
 });
 exports.createTokenPair = createTokenPair;
-const createAccessToken = (payload, accessKey) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const accessToken = yield jsonwebtoken_1.default.sign(payload, accessKey, {
-            expiresIn: "30s",
-        });
-        return accessToken;
-    }
-    catch (error) {
-        throw error;
-    }
-});
-exports.createAccessToken = createAccessToken;
-//# sourceMappingURL=generateToken.js.map
+const generateVerificationCode = () => {
+    return (0, uuid_1.v4)().substring(0, 4).toUpperCase();
+};
+exports.generateVerificationCode = generateVerificationCode;
+//# sourceMappingURL=generateObject.js.map
