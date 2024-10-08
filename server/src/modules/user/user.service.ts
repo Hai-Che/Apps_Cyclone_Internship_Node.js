@@ -100,7 +100,7 @@ export class UserService {
       user.phoneNumber = phoneNumber;
     }
     if (gender) {
-      user.gender = phoneNumber;
+      user.gender = gender;
     }
     await this.userRepository.save(user);
     let userAdvance = await this.userAdvanceRepository.findOne({
