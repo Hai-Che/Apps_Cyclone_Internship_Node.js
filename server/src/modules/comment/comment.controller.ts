@@ -24,13 +24,13 @@ export class CommentController {
 
   @Post("/")
   @UseBefore(AccessTokenMiddleware)
-  async createComment(@Body() body: CreateCommentDto, @Req() request: any) {
+  createComment(@Body() body: CreateCommentDto, @Req() request: any) {
     return this.commentService.createComment(body, request.userId);
   }
 
   @Put("/:id")
   @UseBefore(AccessTokenMiddleware)
-  async updateComment(
+  updateComment(
     @Param("id") commentId: number,
     @Body() body: UpdateCommentDto,
     @Req() request: any
@@ -40,18 +40,18 @@ export class CommentController {
 
   @Delete("/:id")
   @UseBefore(AccessTokenMiddleware)
-  async deleteComment(@Param("id") commentId: number, @Req() request: any) {
+  deleteComment(@Param("id") commentId: number, @Req() request: any) {
     return this.commentService.deleteComment(commentId, request.userId);
   }
 
   @Get("/:id")
-  async getComment(@Param("id") commentId: number) {
+  getComment(@Param("id") commentId: number) {
     return this.commentService.getComment(commentId);
   }
 
   @Put("/hide/:id")
   @UseBefore(AccessTokenMiddleware, RoleMiddleware)
-  async hideComment(@Param("id") commentId: number) {
+  hideComment(@Param("id") commentId: number) {
     return this.commentService.hideComment(commentId);
   }
 }

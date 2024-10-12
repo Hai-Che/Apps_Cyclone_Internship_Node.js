@@ -31,7 +31,7 @@ export class PostController {
 
   @Put("/:id")
   @UseBefore(AccessTokenMiddleware, RoleMiddleware)
-  async updatePost(
+  updatePost(
     @Param("id") postId: number,
     @Body() body: UpdatePostDto,
     @Req() request: any
@@ -41,14 +41,14 @@ export class PostController {
 
   @Get("/detail/:id")
   @UseBefore(GuestCheckMiddleware)
-  async getPost(@Param("id") postId: number, @Req() request: any) {
+  getPost(@Param("id") postId: number, @Req() request: any) {
     const userId = request.userId ? request.userId : null;
     return this.postService.getPost(postId, userId);
   }
 
   @Get("/category/:category")
   @UseBefore(GuestCheckMiddleware)
-  async getPostsByCategory(
+  getPostsByCategory(
     @Param("category") category: string,
     @QueryParam("page") page: number = 1,
     @QueryParam("limit") limit: number = 10,
@@ -64,7 +64,7 @@ export class PostController {
 
   @Get("/viewed-post")
   @UseBefore(AccessTokenMiddleware)
-  async getViewedPost(
+  getViewedPost(
     @Req() request: any,
     @QueryParam("page") page: number = 1,
     @QueryParam("limit") limit: number = 10
@@ -74,7 +74,7 @@ export class PostController {
 
   @Get("/saved-post")
   @UseBefore(AccessTokenMiddleware)
-  async getSavedPost(
+  getSavedPost(
     @Req() request: any,
     @QueryParam("page") page: number = 1,
     @QueryParam("limit") limit: number = 10
