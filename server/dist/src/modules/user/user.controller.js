@@ -59,7 +59,7 @@ __decorate([
 ], UserController.prototype, "deleteUser", null);
 exports.UserController = UserController = __decorate([
     (0, typedi_1.Service)(),
-    (0, routing_controllers_1.UseBefore)(authMiddleware_1.AuthMiddleware),
+    (0, routing_controllers_1.UseBefore)(authMiddleware_1.AccessTokenMiddleware),
     (0, routing_controllers_1.JsonController)("/user"),
     __metadata("design:paramtypes", [user_service_1.UserService])
 ], UserController);

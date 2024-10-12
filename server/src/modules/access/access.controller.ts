@@ -7,7 +7,7 @@ import {
 } from "routing-controllers";
 import { AccessService } from "./access.service";
 import {
-  AuthMiddleware,
+  AccessTokenMiddleware,
   RefreshTokenMiddleware,
 } from "../../middleware/authMiddleware";
 import { RegisterUserDto } from "../user/user.dto";
@@ -29,7 +29,7 @@ export class AccessController {
   }
 
   @Post("/logout")
-  @UseBefore(AuthMiddleware)
+  @UseBefore(AccessTokenMiddleware)
   logout(@Req() request: any) {
     const { userId, sessionId } = request;
     return this.accessService.logout(userId, sessionId);

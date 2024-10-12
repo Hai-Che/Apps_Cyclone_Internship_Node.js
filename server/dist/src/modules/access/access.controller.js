@@ -58,7 +58,7 @@ __decorate([
 ], AccessController.prototype, "login", null);
 __decorate([
     (0, routing_controllers_1.Post)("/logout"),
-    (0, routing_controllers_1.UseBefore)(authMiddleware_1.AuthMiddleware),
+    (0, routing_controllers_1.UseBefore)(authMiddleware_1.AccessTokenMiddleware),
     __param(0, (0, routing_controllers_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),

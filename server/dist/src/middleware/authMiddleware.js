@@ -18,7 +18,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RefreshTokenMiddleware = exports.AuthMiddleware = void 0;
+exports.GuestCheckMiddleware = exports.RoleMiddleware = exports.RefreshTokenMiddleware = exports.AccessTokenMiddleware = void 0;
 const routing_controllers_1 = require("routing-controllers");
 const typedi_1 = require("typedi");
 const user_entity_1 = require("../entities/user.entity");
@@ -30,7 +30,7 @@ const HEADER = {
     AUTHORIZATION: "authorization",
     REFRESH_TOKEN: "x-rtoken-id",
 };
-let AuthMiddleware = class AuthMiddleware {
+let AccessTokenMiddleware = class AccessTokenMiddleware {
     use(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             const accessToken = req.headers[HEADER.AUTHORIZATION];
@@ -55,11 +55,11 @@ let AuthMiddleware = class AuthMiddleware {
         });
     }
 };
-exports.AuthMiddleware = AuthMiddleware;
-exports.AuthMiddleware = AuthMiddleware = __decorate([
+exports.AccessTokenMiddleware = AccessTokenMiddleware;
+exports.AccessTokenMiddleware = AccessTokenMiddleware = __decorate([
     (0, typedi_1.Service)(),
     (0, routing_controllers_1.Middleware)({ type: "before" })
-], AuthMiddleware);
+], AccessTokenMiddleware);
 let RefreshTokenMiddleware = class RefreshTokenMiddleware {
     use(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -94,4 +94,50 @@ exports.RefreshTokenMiddleware = RefreshTokenMiddleware = __decorate([
     (0, typedi_1.Service)(),
     (0, routing_controllers_1.Middleware)({ type: "before" })
 ], RefreshTokenMiddleware);
+let RoleMiddleware = class RoleMiddleware {
+    use(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userId = parseInt(req.userId);
+            const findUser = yield userRepository.findOne({ where: { userId } });
+            if (!findUser || findUser.role === "User") {
+                throw new routing_controllers_1.UnauthorizedError("Action denied!");
+            }
+            next();
+        });
+    }
+};
+exports.RoleMiddleware = RoleMiddleware;
+exports.RoleMiddleware = RoleMiddleware = __decorate([
+    (0, typedi_1.Service)(),
+    (0, routing_controllers_1.Middleware)({ type: "before" })
+], RoleMiddleware);
+let GuestCheckMiddleware = class GuestCheckMiddleware {
+    use(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const accessToken = req.headers[HEADER.AUTHORIZATION];
+            if (!accessToken) {
+                return next();
+            }
+            try {
+                const decodeUser = jsonwebtoken_1.default.decode(accessToken, { complete: true });
+                const userId = decodeUser.payload.userId;
+                const findUser = yield userRepository.findOne({ where: { userId } });
+                if (!findUser) {
+                    throw new routing_controllers_1.UnauthorizedError("User not found");
+                }
+                const verified = jsonwebtoken_1.default.verify(accessToken, `${findUser.salt}at`);
+                req.userId = verified.userId;
+                req.sessionId = verified.sessionId;
+                next();
+            }
+            catch (error) {
+                throw new routing_controllers_1.UnauthorizedError("Invalid request");
+            }
+        });
+    }
+};
+exports.GuestCheckMiddleware = GuestCheckMiddleware;
+exports.GuestCheckMiddleware = GuestCheckMiddleware = __decorate([
+    (0, typedi_1.Service)()
+], GuestCheckMiddleware);
 //# sourceMappingURL=authMiddleware.js.map

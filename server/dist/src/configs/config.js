@@ -11,6 +11,8 @@ const config_bullboard_1 = __importDefault(require("./config.bullboard"));
 const init_mysql_1 = __importDefault(require("../dbs/init.mysql"));
 const user_entity_1 = require("../entities/user.entity");
 const userAdvance_entity_1 = require("../entities/userAdvance.entity");
+const post_entity_1 = require("../entities/post.entity");
+const comment_entity_1 = require("../entities/comment.entity");
 const configureApp = (app) => {
     app.use(express_1.default.json());
     app.use("/api/admin/queues", config_bullboard_1.default.getRouter());
@@ -19,8 +21,12 @@ exports.configureApp = configureApp;
 const configureRepositories = () => {
     const UserRepository = init_mysql_1.default.getRepository(user_entity_1.User).extend({});
     const UserAdvanceRepository = init_mysql_1.default.getRepository(userAdvance_entity_1.UserAdvance).extend({});
+    const PostRepository = init_mysql_1.default.getRepository(post_entity_1.Post).extend({});
+    const CommentRepository = init_mysql_1.default.getRepository(comment_entity_1.Comment).extend({});
     typedi_1.default.set("UserRepository", UserRepository);
     typedi_1.default.set("UserAdvanceRepository", UserAdvanceRepository);
+    typedi_1.default.set("PostRepository", PostRepository);
+    typedi_1.default.set("CommentRepository", CommentRepository);
     (0, routing_controllers_1.useContainer)(typedi_1.default);
 };
 exports.configureRepositories = configureRepositories;

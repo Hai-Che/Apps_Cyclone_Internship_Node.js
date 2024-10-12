@@ -5,6 +5,8 @@ import BullBoardConfig from "./config.bullboard";
 import MysqlDataSource from "../dbs/init.mysql";
 import { User } from "../entities/user.entity";
 import { UserAdvance } from "../entities/userAdvance.entity";
+import { Post } from "../entities/post.entity";
+import { Comment } from "../entities/comment.entity";
 
 export const configureApp = (app: express.Application) => {
   app.use(express.json());
@@ -16,7 +18,12 @@ export const configureRepositories = () => {
   const UserAdvanceRepository = MysqlDataSource.getRepository(
     UserAdvance
   ).extend({});
+  const PostRepository = MysqlDataSource.getRepository(Post).extend({});
+  const CommentRepository = MysqlDataSource.getRepository(Comment).extend({});
+
   Container.set("UserRepository", UserRepository);
   Container.set("UserAdvanceRepository", UserAdvanceRepository);
+  Container.set("PostRepository", PostRepository);
+  Container.set("CommentRepository", CommentRepository);
   useContainer(Container);
 };

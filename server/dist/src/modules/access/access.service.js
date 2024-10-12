@@ -91,9 +91,12 @@ let AccessService = class AccessService {
             if (!passwordCheck) {
                 throw new routing_controllers_1.UnauthorizedError("Authenticated error");
             }
+            if (!findUser.isActive) {
+                throw new routing_controllers_1.BadRequestError(`Inactive user`);
+            }
             const sessionId = (0, uuid_1.v4)();
             const tokens = yield (0, generateObject_1.createTokenPair)({ userId: findUser.userId, sessionId }, `${findUser.salt}at`, `${findUser.salt}rt`);
-            yield init_redis_1.default.set(`accessToken:${findUser.userId}:${sessionId}`, tokens.accessToken, "EX", 30);
+            yield init_redis_1.default.set(`accessToken:${findUser.userId}:${sessionId}`, tokens.accessToken, "EX", 300);
             yield init_redis_1.default.set(`refreshToken:${findUser.userId}:${sessionId}`, tokens.refreshToken, "EX", 300);
             return {
                 data: {
@@ -127,6 +130,7 @@ let AccessService = class AccessService {
         return __awaiter(this, arguments, void 0, function* ({ userId, verificationCode }) {
             const storedCode = yield init_redis_1.default.get(`verification:${userId}`);
             if (storedCode === verificationCode) {
+                yield this.userRepository.update(userId, { isActive: true });
                 yield init_redis_1.default.del(`verification:${userId}`);
                 return { message: "Verify successfully!" };
             }

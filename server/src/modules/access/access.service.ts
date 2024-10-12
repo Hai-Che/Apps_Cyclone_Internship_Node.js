@@ -87,6 +87,9 @@ export class AccessService {
     if (!passwordCheck) {
       throw new UnauthorizedError("Authenticated error");
     }
+    if (!findUser.isActive) {
+      throw new BadRequestError(`Inactive user`);
+    }
     const sessionId = uuidv4();
     const tokens = await createTokenPair(
       { userId: findUser.userId, sessionId },
@@ -97,7 +100,7 @@ export class AccessService {
       `accessToken:${findUser.userId}:${sessionId}`,
       tokens.accessToken,
       "EX",
-      30
+      300
     );
     await redisClient.set(
       `refreshToken:${findUser.userId}:${sessionId}`,
@@ -148,6 +151,7 @@ export class AccessService {
   async verify({ userId, verificationCode }) {
     const storedCode = await redisClient.get(`verification:${userId}`);
     if (storedCode === verificationCode) {
+      await this.userRepository.update(userId, { isActive: true });
       await redisClient.del(`verification:${userId}`);
       return { message: "Verify successfully!" };
     } else {

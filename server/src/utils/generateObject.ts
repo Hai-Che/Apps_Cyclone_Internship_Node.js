@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 export const createTokenPair = async (payload, accessKey, refreshKey) => {
   try {
     const accessToken = await jwt.sign(payload, accessKey, {
-      expiresIn: "30s",
+      expiresIn: "300s",
     });
     const refreshToken = await jwt.sign(payload, refreshKey, {
       expiresIn: "300s",

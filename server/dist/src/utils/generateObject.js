@@ -18,7 +18,7 @@ const uuid_1 = require("uuid");
 const createTokenPair = (payload, accessKey, refreshKey) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const accessToken = yield jsonwebtoken_1.default.sign(payload, accessKey, {
-            expiresIn: "30s",
+            expiresIn: "300s",
         });
         const refreshToken = yield jsonwebtoken_1.default.sign(payload, refreshKey, {
             expiresIn: "300s",

@@ -10,11 +10,11 @@ import {
 } from "routing-controllers";
 import { UpdateUserDto } from "./user.dto";
 import { UserService } from "./user.service";
-import { AuthMiddleware } from "../../middleware/authMiddleware";
+import { AccessTokenMiddleware } from "../../middleware/authMiddleware";
 import { Service } from "typedi";
 
 @Service()
-@UseBefore(AuthMiddleware)
+@UseBefore(AccessTokenMiddleware)
 @JsonController("/user")
 export class UserController {
   constructor(private userService: UserService) {}

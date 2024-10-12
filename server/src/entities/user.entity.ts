@@ -111,4 +111,7 @@ export class User {
     default: Gender.Male,
   })
   gender: Gender;
+
+  @Column({ type: "boolean", default: false })
+  isActive: boolean;
 }

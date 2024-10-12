@@ -94,7 +94,7 @@ let UserService = class UserService {
                 user.phoneNumber = phoneNumber;
             }
             if (gender) {
-                user.gender = phoneNumber;
+                user.gender = gender;
             }
             yield this.userRepository.save(user);
             let userAdvance = yield this.userAdvanceRepository.findOne({

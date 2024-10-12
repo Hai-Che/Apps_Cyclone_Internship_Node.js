@@ -23,7 +23,7 @@ const HEADER = {
 
 @Service()
 @Middleware({ type: "before" })
-export class AuthMiddleware implements ExpressMiddlewareInterface {
+export class AccessTokenMiddleware implements ExpressMiddlewareInterface {
   async use(
     req: AuthenticatedRequest,
     res: Response,
@@ -78,6 +78,51 @@ export class RefreshTokenMiddleware implements ExpressMiddlewareInterface {
       if (storedRefreshToken !== refreshToken) {
         throw new UnauthorizedError("Unauthorized error");
       }
+      next();
+    } catch (error) {
+      throw new UnauthorizedError("Invalid request");
+    }
+  }
+}
+
+@Service()
+@Middleware({ type: "before" })
+export class RoleMiddleware implements ExpressMiddlewareInterface {
+  async use(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const userId = parseInt(req.userId);
+    const findUser = await userRepository.findOne({ where: { userId } });
+    if (!findUser || findUser.role === "User") {
+      throw new UnauthorizedError("Action denied!");
+    }
+    next();
+  }
+}
+
+@Service()
+export class GuestCheckMiddleware implements ExpressMiddlewareInterface {
+  async use(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    const accessToken = req.headers[HEADER.AUTHORIZATION];
+    if (!accessToken) {
+      return next();
+    }
+    try {
+      const decodeUser = jwt.decode(accessToken, { complete: true });
+      const userId = decodeUser.payload.userId;
+      const findUser = await userRepository.findOne({ where: { userId } });
+      if (!findUser) {
+        throw new UnauthorizedError("User not found");
+      }
+      const verified = jwt.verify(accessToken, `${findUser.salt}at`);
+      req.userId = verified.userId;
+      req.sessionId = verified.sessionId;
       next();
     } catch (error) {
       throw new UnauthorizedError("Invalid request");

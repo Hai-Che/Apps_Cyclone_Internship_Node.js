@@ -1,64 +1,84 @@
-# Task 11: Authentication
+# Task 12: Post
 
-#### Authentication
+#### Tin tức
 
-##### Đăng kí
+##### Đăng tin tức
 
-Yêu cầu:
-Email: Yêu cầu phải đúng format của email. Sử dụng regex để validate.
-Password: Mật khẩu phải chứa ít nhất 6 kí tự. Dùng bcrypt để hash password trước khi lưu vào database.
-Name: Yêu cầu phải là kiểu string
-User đăng kí sẽ có role mặc định là User.
-Hệ thống sẽ có thêm role Admin và Moderator. Hiện tại, do không cần tập trung nhiều vào API dành riêng cho CMS nên hai role này ta chỉ cần tạo thẳng 2 records vào trong database table User.
-Sau khi đăng kí, user sẽ nhận được một email gửi đến mail đã đăng kí để xác thực tài khoản. Email xác thực sẽ chứa một mã code 4 kí tự. User cần call một API với 4 kí tự này để hoàn tất xác thực tài khoản.
+API để đăng một bài tin tức bao gồm các property sau:
 
-##### Đăng nhập
+- Title: Không quá 250 kí tự.
+- Content: Nội dung bài viết. Kiểu string, chứa html content. Để frontend có thể render được nội dung trên website. Không quá 20000 kí tự.
+- Thumbnail: Không quá 2048 kí tự
+- Category: Không quá 125 kí tự
+- DateTime: Phải là kiểu DateTime string
+- Author: Không quá 125 kí tự
+- Tags: Là các từ khóa được đính kèm theo bài viết. Một bài viết có thể chứa nhiều tags. Mỗi tag không quá 125 kí tự
+- Status: Nháp/ Xuất bản/ Xóa. Ở trạng thái Nháp/ Xóa bài viết sẽ không được xuất hiện khi gọi danh sách các bài viết.
+- Description: Là mô tả ngắn gọn về nội dung bài viết. Không quá 500 kí tự.
 
-Input:
+Khi bài viết được tạo ra, data phải được lưu vào trong bộ nhớ cache.
+API này chỉ cho phép user role: Admin/ Moderator thực hiện.
 
-- Email
-- Password
+##### Cập nhật tin tức
 
-Output:
+Cho phép moderator có thể cập nhật lại bài đăng.
+Các property nào cần update sẽ được define trong body của request. Nếu không có, nghĩa là giá trị của prop đó sẽ vẫn được giữ nguyên, không cần cập nhật.
+Khi cập nhật, thông tin phải được cập nhật lại trong bộ nhớ cache.
+API này chỉ cho phép user role: Admin/ Moderator thực hiện.
 
-```json
-Json Data type:
-{
-  "data": {
-    "name": "hai",
-    "email": "sample@gmail.com",
-    // ...
-    "accessToken": "asdas9123...asdd1",
-    "refreshToken": "asd21312312....12312",
-  }
-}
-```
+##### Xem chi tiết tin tức
 
-Response phải có chứa accessToken và refreshToken.
+API sẽ trả về chi tiết của bài viết dựa trên id của bài viết đó.
+Trong đó, thông tin sẽ bao gồm thêm các thống kê về số lượt xem và số lượt bình luận của bài viết đó.
+Thông tin của bài viết đầu tiên sẽ được lấy ra từ bộ nhớ cache. Nếu bộ nhớ cache không tồn tại, thì API phải query thông tin từ DB. Sau đó, cache bài viết vào lại bộ nhớ cache.
 
-#### User
+##### Lấy danh sách bài viết theo chuyên mục
 
-##### Thông tin user
+API hiển thị danh sách bài viết theo chuyên mục được truyền vào.
+API phải bao gồm tính năng phân trang (pagination). Nghĩa là user có thể lấy tin dựa theo số trang và số lượng tin.
+Ví dụ: User cần lấy trang số 2, và tối đa 10 tin. Params GET của chúng ta sẽ là: …/kinh-te?page=2&limit=10
+Mỗi record trong danh sách chỉ cần hiển thị các thông tin sau:
 
-Viết API cho phép cập nhật thông tin user. User có thể cập nhật các thông tin bổ sung sau:
+- Title
+- Description
+- Thumbnail
+- Author
+- Total Comment
 
-- Ảnh đại diện
-- Họ tên
-- Ngày sinh
-- Giới tính
-- Số điện thoại
-- Địa chỉ
+##### Danh sách các tin đã xem của user
 
-Tất cả các thông tin trên đều là optional. Có nghĩa là user có thể cập nhật hoặc không cập nhật. Không ràng buộc các thuộc tính trên phải có giá trị.
+Hiển thị danh sách các tin đã xem của user.
+Yêu cầu phân trang, chỉ user với accessToken mới có thể call được.
+Danh sách này sẽ được lưu vào bộ nhớ cache. Không cần thiết phải lưu vào database. Có thể set thời gian expire cho data này (30 ngày). Sau 30 ngày, data này sẽ được xóa khỏi cache.
 
-##### Thay đổi mật khẩu
+##### Danh sách các tin đã lưu của user
 
-Cập nhật lại mật khẩu mới cho user. Yêu cầu sau khi thay đổi mật khẩu. Các accessToken và refreshToken của user hiện tại phải bị invalid hết. Và response ra một cặp accessToken và refreshToken mới cho user.
+Hiển thị danh sách các tin user đã lưu lại.
+Yêu cầu phân trang, chỉ user với accessToken mới có thể call được.
 
-##### Refresh Token
+#### Bình luận
 
-Cấp lại cho user một cặp accessToken và refreshToken mới. User sẽ cần gửi lên refreshToken trong request.
+##### CRUD
 
-##### Đăng xuất
+Cho phép user đăng bình luận/ phản hồi vào bài viết với nội dung là string và không quá 250 kí tự.
+User cũng có thể update/ delete bình luận của bản thân.
+Mỗi bài viết, user chỉ có thể đăng một bình luận.
+Không giới hạn số lần phản hồi bình luận của user.
+Phản hồi bình luận sẽ chỉ tối đa 1 level. Ví dụ:
 
-Xóa accessToken và refreshToken của user.
+- B phản hồi bình luận “Hello” của A.
+  // Lúc này parentComment của B sẽ là comment của A.
+  UserA: Hello
+  --- UserB: Hi
+
+- C phản hồi bình luận của B.
+  UserA: Hello
+  --- UserB: Hi
+  ------- UserC: Hiiiii
+  // Ở đây parentComment của C phải là B.
+  // Nhưng vì để đơn giản các gọi ra danh sách bình luận, nên ở đây
+  // parentComment của C cũng sẽ là A.
+  UserA: Hello
+  --- UserB: Hi
+  --- UserC: Hiiiii
+  Role: Admin/ Mod có thể ẩn các bình luận/ phản hồi của user khác. Các bình luận
