@@ -67,18 +67,21 @@ Không giới hạn số lần phản hồi bình luận của user.
 Phản hồi bình luận sẽ chỉ tối đa 1 level. Ví dụ:
 
 - B phản hồi bình luận “Hello” của A.
-  // Lúc này parentComment của B sẽ là comment của A.
-  UserA: Hello
-  --- UserB: Hi
+
+UserA: Hello
+--- UserB: Hi
+
+Lúc này parentComment của B sẽ là comment của A.
 
 - C phản hồi bình luận của B.
-  UserA: Hello
-  --- UserB: Hi
-  ------- UserC: Hiiiii
-  // Ở đây parentComment của C phải là B.
-  // Nhưng vì để đơn giản các gọi ra danh sách bình luận, nên ở đây
-  // parentComment của C cũng sẽ là A.
-  UserA: Hello
-  --- UserB: Hi
-  --- UserC: Hiiiii
-  Role: Admin/ Mod có thể ẩn các bình luận/ phản hồi của user khác. Các bình luận
+
+UserA: Hello
+--- UserB: Hi
+------- UserC: Hiiiii
+
+Ở đây parentComment của C phải là B nhưng vì để đơn giản các gọi ra danh sách bình luận, nên ở đây parentComment của C cũng sẽ là A.
+UserA: Hello
+--- UserB: Hi
+--- UserC: Hiiiii
+
+Role: Admin/ Mod có thể ẩn các bình luận/ phản hồi của user khác. Các bình luận
