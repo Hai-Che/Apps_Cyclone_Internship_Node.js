@@ -11,15 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostController = void 0;
 const routing_controllers_1 = require("routing-controllers");
@@ -35,30 +26,20 @@ let PostController = class PostController {
         return this.postService.createPost(body, request.userId);
     }
     updatePost(postId, body, request) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.postService.updatePost(postId, body, request.userId);
-        });
+        return this.postService.updatePost(postId, body, request.userId);
     }
     getPost(postId, request) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const userId = request.userId ? request.userId : null;
-            return this.postService.getPost(postId, userId);
-        });
+        const userId = request.userId ? request.userId : null;
+        return this.postService.getPost(postId, userId);
     }
-    getPostsByCategory(category_1) {
-        return __awaiter(this, arguments, void 0, function* (category, page = 1, limit = 10, request) {
-            return this.postService.getPostsByCategory(category, page, limit, request.userId);
-        });
+    getPostsByCategory(category, page = 1, limit = 10, request) {
+        return this.postService.getPostsByCategory(category, page, limit, request.userId);
     }
-    getViewedPost(request_1) {
-        return __awaiter(this, arguments, void 0, function* (request, page = 1, limit = 10) {
-            return this.postService.getViewedPost(request.userId, page, limit);
-        });
+    getViewedPost(request, page = 1, limit = 10) {
+        return this.postService.getViewedPost(request.userId, page, limit);
     }
-    getSavedPost(request_1) {
-        return __awaiter(this, arguments, void 0, function* (request, page = 1, limit = 10) {
-            return this.postService.getSavedPost(request.userId, page, limit);
-        });
+    getSavedPost(request, page = 1, limit = 10) {
+        return this.postService.getSavedPost(request.userId, page, limit);
     }
     savedPost(postId, request) {
         return this.postService.savedPost(postId, request.userId);
@@ -88,7 +69,7 @@ __decorate([
     __param(2, (0, routing_controllers_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, post_dto_1.UpdatePostDto, Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], PostController.prototype, "updatePost", null);
 __decorate([
     (0, routing_controllers_1.Get)("/detail/:id"),
@@ -97,7 +78,7 @@ __decorate([
     __param(1, (0, routing_controllers_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], PostController.prototype, "getPost", null);
 __decorate([
     (0, routing_controllers_1.Get)("/category/:category"),
@@ -108,7 +89,7 @@ __decorate([
     __param(3, (0, routing_controllers_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Number, Number, Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], PostController.prototype, "getPostsByCategory", null);
 __decorate([
     (0, routing_controllers_1.Get)("/viewed-post"),
@@ -118,7 +99,7 @@ __decorate([
     __param(2, (0, routing_controllers_1.QueryParam)("limit")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Number, Number]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], PostController.prototype, "getViewedPost", null);
 __decorate([
     (0, routing_controllers_1.Get)("/saved-post"),
@@ -128,7 +109,7 @@ __decorate([
     __param(2, (0, routing_controllers_1.QueryParam)("limit")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Number, Number]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], PostController.prototype, "getSavedPost", null);
 __decorate([
     (0, routing_controllers_1.Post)("/saved-post/:id"),

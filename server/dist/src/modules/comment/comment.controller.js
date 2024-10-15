@@ -11,15 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommentController = void 0;
 const routing_controllers_1 = require("routing-controllers");
@@ -32,29 +23,19 @@ let CommentController = class CommentController {
         this.commentService = commentService;
     }
     createComment(body, request) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.commentService.createComment(body, request.userId);
-        });
+        return this.commentService.createComment(body, request.userId);
     }
     updateComment(commentId, body, request) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.commentService.updateComment(commentId, body, request.userId);
-        });
+        return this.commentService.updateComment(commentId, body, request.userId);
     }
     deleteComment(commentId, request) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.commentService.deleteComment(commentId, request.userId);
-        });
+        return this.commentService.deleteComment(commentId, request.userId);
     }
     getComment(commentId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.commentService.getComment(commentId);
-        });
+        return this.commentService.getComment(commentId);
     }
     hideComment(commentId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return this.commentService.hideComment(commentId);
-        });
+        return this.commentService.hideComment(commentId);
     }
 };
 exports.CommentController = CommentController;
@@ -65,7 +46,7 @@ __decorate([
     __param(1, (0, routing_controllers_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [comment_dto_1.CreateCommentDto, Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], CommentController.prototype, "createComment", null);
 __decorate([
     (0, routing_controllers_1.Put)("/:id"),
@@ -75,7 +56,7 @@ __decorate([
     __param(2, (0, routing_controllers_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, comment_dto_1.UpdateCommentDto, Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], CommentController.prototype, "updateComment", null);
 __decorate([
     (0, routing_controllers_1.Delete)("/:id"),
@@ -84,14 +65,14 @@ __decorate([
     __param(1, (0, routing_controllers_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number, Object]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], CommentController.prototype, "deleteComment", null);
 __decorate([
     (0, routing_controllers_1.Get)("/:id"),
     __param(0, (0, routing_controllers_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], CommentController.prototype, "getComment", null);
 __decorate([
     (0, routing_controllers_1.Put)("/hide/:id"),
@@ -99,7 +80,7 @@ __decorate([
     __param(0, (0, routing_controllers_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", Promise)
+    __metadata("design:returntype", void 0)
 ], CommentController.prototype, "hideComment", null);
 exports.CommentController = CommentController = __decorate([
     (0, typedi_1.Service)(),
