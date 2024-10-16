@@ -50,6 +50,12 @@ let PostController = class PostController {
     deletedPost(postId) {
         return this.postService.deletedPost(postId);
     }
+    searchPosts(keyword, page = 1, limit = 10) {
+        return this.postService.searchPosts(keyword, page, limit);
+    }
+    getPostStats() {
+        return this.postService.getPostStats();
+    }
 };
 exports.PostController = PostController;
 __decorate([
@@ -136,6 +142,21 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], PostController.prototype, "deletedPost", null);
+__decorate([
+    (0, routing_controllers_1.Get)("/search"),
+    __param(0, (0, routing_controllers_1.QueryParam)("keyword")),
+    __param(1, (0, routing_controllers_1.QueryParam)("page")),
+    __param(2, (0, routing_controllers_1.QueryParam)("limit")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Number, Number]),
+    __metadata("design:returntype", void 0)
+], PostController.prototype, "searchPosts", null);
+__decorate([
+    (0, routing_controllers_1.Get)("/stats"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], PostController.prototype, "getPostStats", null);
 exports.PostController = PostController = __decorate([
     (0, typedi_1.Service)(),
     (0, routing_controllers_1.JsonController)("/posts"),

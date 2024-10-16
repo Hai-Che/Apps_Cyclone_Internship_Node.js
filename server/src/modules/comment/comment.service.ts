@@ -2,7 +2,7 @@ import { Comment } from "../../entities/comment.entity";
 import { Inject, Service } from "typedi";
 import { IsNull, Repository } from "typeorm";
 import { BadRequestError, ForbiddenError } from "routing-controllers";
-import { Post } from "../../entities/post.entity";
+import { Post, PostStatus } from "../../entities/post.entity";
 
 @Service()
 export class CommentService {
@@ -117,6 +117,65 @@ export class CommentService {
     return { rootComment, childComment };
   }
 
+  async getCommentOfPost(postId, sort, page, limit) {
+    const post = await this.postRepository.findOne({ where: { postId } });
+    if (!post || post.status !== PostStatus.Published) {
+      throw new BadRequestError("This post not available right now");
+    }
+    const skip = (page - 1) * limit;
+    let comments;
+    if (sort === "date") {
+      comments = await this.commentRepository.find({
+        where: { postId },
+        order: { createdDate: "DESC" },
+        skip,
+        take: limit,
+      });
+    } else {
+      comments = await this.commentRepository
+        .createQueryBuilder("comment")
+        .where("comment.postId = :postId", { postId })
+        .orderBy("LENGTH(comment.likes)", "DESC")
+        .skip(skip)
+        .take(limit)
+        .getMany();
+    }
+    return comments.map((comment) => ({
+      ...comment,
+      repliesCount: comment.replies.length,
+      likesCount: comment.likes.length,
+    }));
+  }
+
+  async getRepliesOfComment(parentCommentId, page, limit) {
+    const checkComment = await this.commentRepository.findOne({
+      where: { id: parentCommentId },
+    });
+    if (!checkComment) {
+      throw new BadRequestError("Comment not found");
+    }
+    if (!checkComment.replies.length) {
+      throw new BadRequestError("Nobody reply!");
+    }
+    const skip = (page - 1) * limit;
+    return await this.commentRepository.find({
+      where: { parentCommentId },
+      order: { createdDate: "DESC" },
+      skip,
+      take: limit,
+    });
+  }
+
+  async getCommentsByUser(page, limit, currentUserId: number) {
+    const skip = (page - 1) * limit;
+    return await this.commentRepository.find({
+      where: { userId: currentUserId },
+      order: { createdDate: "DESC" },
+      skip,
+      take: limit,
+    });
+  }
+
   async hideComment(commentId) {
     const comment = await this.commentRepository.findOne({
       where: { id: commentId },
@@ -130,5 +189,24 @@ export class CommentService {
       { id: commentId },
       { isHidden: !comment.isHidden }
     );
+  }
+
+  async handleLikeComment(commentId, currentUserId) {
+    const checkComment = await this.commentRepository.findOne({
+      where: { id: commentId },
+    });
+    if (!checkComment) {
+      throw new BadRequestError("Comment not found");
+    }
+    if (checkComment.likes) {
+      checkComment.likes = checkComment.likes.includes(currentUserId.toString())
+        ? checkComment.likes.filter((item) => item != currentUserId.toString())
+        : [...checkComment.likes, currentUserId.toString()];
+    } else {
+      checkComment.likes = [currentUserId.toString()];
+    }
+
+    await this.commentRepository.save(checkComment);
+    return { checkComment };
   }
 }

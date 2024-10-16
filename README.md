@@ -1,88 +1,35 @@
-# Task 12: Post
+# Task 13: CMS
 
-#### Tin tức
+#### Like/ Unlike bình luận
 
-##### Đăng tin tức
+User có thể thả like/ unlike cho bình luận.
 
-API để đăng một bài tin tức bao gồm các property sau:
+##### Danh sách bình luận theo tin tức
 
-- Title: Không quá 250 kí tự.
-- Content: Nội dung bài viết. Kiểu string, chứa html content. Để frontend có thể render được nội dung trên website. Không quá 20000 kí tự.
-- Thumbnail: Không quá 2048 kí tự
-- Category: Không quá 125 kí tự
-- DateTime: Phải là kiểu DateTime string
-- Author: Không quá 125 kí tự
-- Tags: Là các từ khóa được đính kèm theo bài viết. Một bài viết có thể chứa nhiều tags. Mỗi tag không quá 125 kí tự
-- Status: Nháp/ Xuất bản/ Xóa. Ở trạng thái Nháp/ Xóa bài viết sẽ không được xuất hiện khi gọi danh sách các bài viết.
-- Description: Là mô tả ngắn gọn về nội dung bài viết. Không quá 500 kí tự.
+Lấy danh sách bình luận theo từng bài viết theo 2 kiểu sort:
 
-Khi bài viết được tạo ra, data phải được lưu vào trong bộ nhớ cache.
-API này chỉ cho phép user role: Admin/ Moderator thực hiện.
+- Mới nhất: Sắp xếp theo thời gian.
+- Quan tâm: Sắp xếp theo số lượt like giảm dần.
 
-##### Cập nhật tin tức
+Có hỗ trợ phân trang. Trong danh sách này, mỗi bình luận sẽ có thêm thống kế tổng số reply.
 
-Cho phép moderator có thể cập nhật lại bài đăng.
-Các property nào cần update sẽ được define trong body của request. Nếu không có, nghĩa là giá trị của prop đó sẽ vẫn được giữ nguyên, không cần cập nhật.
-Khi cập nhật, thông tin phải được cập nhật lại trong bộ nhớ cache.
-API này chỉ cho phép user role: Admin/ Moderator thực hiện.
+##### Danh sách các phản hồi theo từng bình luận
 
-##### Xem chi tiết tin tức
+Đối với các bình luận có reply > 0. Dùng API này để lấy ra danh sách các phản hồi dựa theo bình luận ID. Có hỗ trợ phân trang.
 
-API sẽ trả về chi tiết của bài viết dựa trên id của bài viết đó.
-Trong đó, thông tin sẽ bao gồm thêm các thống kê về số lượt xem và số lượt bình luận của bài viết đó.
-Thông tin của bài viết đầu tiên sẽ được lấy ra từ bộ nhớ cache. Nếu bộ nhớ cache không tồn tại, thì API phải query thông tin từ DB. Sau đó, cache bài viết vào lại bộ nhớ cache.
+##### Danh sách các bình luận theo user
 
-##### Lấy danh sách bài viết theo chuyên mục
+Lấy danh sách tất cả các bình luận của user. Có hỗ trợ phân trang. Yêu cầu có accessToken để xác định được user request.
 
-API hiển thị danh sách bài viết theo chuyên mục được truyền vào.
-API phải bao gồm tính năng phân trang (pagination). Nghĩa là user có thể lấy tin dựa theo số trang và số lượng tin.
-Ví dụ: User cần lấy trang số 2, và tối đa 10 tin. Params GET của chúng ta sẽ là: …/kinh-te?page=2&limit=10
-Mỗi record trong danh sách chỉ cần hiển thị các thông tin sau:
+##### Tìm kiếm
 
-- Title
-- Description
-- Thumbnail
-- Author
-- Total Comment
+Tìm kiếm bài viết với keyword có thể là title, tag, có hỗ trợ phân trang.
 
-##### Danh sách các tin đã xem của user
+##### Thống kê
 
-Hiển thị danh sách các tin đã xem của user.
-Yêu cầu phân trang, chỉ user với accessToken mới có thể call được.
-Danh sách này sẽ được lưu vào bộ nhớ cache. Không cần thiết phải lưu vào database. Có thể set thời gian expire cho data này (30 ngày). Sau 30 ngày, data này sẽ được xóa khỏi cache.
+- Thống kê lượt xem của mỗi bài viết
+- Thống kế lượt bình luận của mỗi bài viết
 
-##### Danh sách các tin đã lưu của user
+##### Hình ảnh
 
-Hiển thị danh sách các tin user đã lưu lại.
-Yêu cầu phân trang, chỉ user với accessToken mới có thể call được.
-
-#### Bình luận
-
-##### CRUD
-
-Cho phép user đăng bình luận/ phản hồi vào bài viết với nội dung là string và không quá 250 kí tự.
-User cũng có thể update/ delete bình luận của bản thân.
-Mỗi bài viết, user chỉ có thể đăng một bình luận.
-Không giới hạn số lần phản hồi bình luận của user.
-Phản hồi bình luận sẽ chỉ tối đa 1 level. Ví dụ:
-
-- B phản hồi bình luận “Hello” của A.
-
-UserA: Hello.\
---- UserB: Hi.
-
-Lúc này parentComment của B sẽ là comment của A.
-
-- C phản hồi bình luận của B.
-
-UserA: Hello.\
---- UserB: Hi.\
-------- UserC: Hiiiii.
-
-Ở đây parentComment của C phải là B nhưng vì để đơn giản các gọi ra danh sách bình luận, nên ở đây parentComment của C cũng sẽ là A.
-
-UserA: Hello.\
---- UserB: Hi.\
---- UserC: Hiiiii.
-
-Role: Admin/ Mod có thể ẩn các bình luận/ phản hồi của user khác. Các bình luận
+Đối với hình ảnh, mình sẽ dùng thư viện multer để upload ảnh. Tạm thời ảnh sẽ được lưu local vào trong source code. Database sẽ store path đến hình ảnh đó.

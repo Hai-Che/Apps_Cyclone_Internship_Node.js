@@ -11,6 +11,15 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserController = void 0;
 const routing_controllers_1 = require("routing-controllers");
@@ -18,6 +27,7 @@ const user_dto_1 = require("./user.dto");
 const user_service_1 = require("./user.service");
 const authMiddleware_1 = require("../../middleware/authMiddleware");
 const typedi_1 = require("typedi");
+const fileUploadMiddleware_1 = require("../../middleware/fileUploadMiddleware");
 let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
@@ -30,6 +40,13 @@ let UserController = class UserController {
     }
     deleteUser(id, request) {
         return this.userService.deleteUser(id, request.userId);
+    }
+    updateProfilePicture(request) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const filePath = request.file.path;
+            console.log(filePath);
+            return this.userService.updateProfilePicture(request.userId, filePath);
+        });
     }
 };
 exports.UserController = UserController;
@@ -57,6 +74,14 @@ __decorate([
     __metadata("design:paramtypes", [Number, Object]),
     __metadata("design:returntype", void 0)
 ], UserController.prototype, "deleteUser", null);
+__decorate([
+    (0, routing_controllers_1.Put)("/profile-picture"),
+    (0, routing_controllers_1.UseBefore)(authMiddleware_1.AccessTokenMiddleware, fileUploadMiddleware_1.uploadDisk.single("file")),
+    __param(0, (0, routing_controllers_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "updateProfilePicture", null);
 exports.UserController = UserController = __decorate([
     (0, typedi_1.Service)(),
     (0, routing_controllers_1.UseBefore)(authMiddleware_1.AccessTokenMiddleware),

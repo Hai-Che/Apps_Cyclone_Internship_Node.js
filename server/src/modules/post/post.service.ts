@@ -127,4 +127,39 @@ export class PostService {
       status: PostStatus.Deleted,
     });
   }
+
+  async searchPosts(keyword, page, limit) {
+    const skip = (page - 1) * limit;
+    const posts = await this.postRepository
+      .createQueryBuilder("post")
+      .where("post.title LIKE :keyword", { keyword: `%${keyword}%` })
+      .orWhere("post.tags LIKE :keyword", { keyword: `%${keyword}%` })
+      .orderBy("post.createdDate", "DESC")
+      .skip(skip)
+      .take(limit)
+      .getMany();
+    if (!posts) {
+      throw new BadRequestError("Posts not found with your keyword");
+    }
+    return posts;
+  }
+
+  async getPostStats() {
+    const postViewStats = await this.postRepository.find({
+      where: { status: PostStatus.Published },
+      order: {
+        views: "DESC",
+      },
+    });
+    const postCommentStats = await this.postRepository.find({
+      where: { status: PostStatus.Published },
+      order: {
+        totalComments: "DESC",
+      },
+    });
+    return {
+      postViewStats,
+      postCommentStats,
+    };
+  }
 }

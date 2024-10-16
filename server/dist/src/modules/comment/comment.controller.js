@@ -31,11 +31,23 @@ let CommentController = class CommentController {
     deleteComment(commentId, request) {
         return this.commentService.deleteComment(commentId, request.userId);
     }
+    getCommentsByUser(page = 1, limit = 10, request) {
+        return this.commentService.getCommentsByUser(page, limit, request.userId);
+    }
     getComment(commentId) {
         return this.commentService.getComment(commentId);
     }
+    getCommentOfPost(postId, sort, page = 1, limit = 10) {
+        return this.commentService.getCommentOfPost(postId, sort, page, limit);
+    }
+    getRepliesOfComment(commentId, page = 1, limit = 10) {
+        return this.commentService.getRepliesOfComment(commentId, page, limit);
+    }
     hideComment(commentId) {
         return this.commentService.hideComment(commentId);
+    }
+    handleLikeComment(commentId, request) {
+        return this.commentService.handleLikeComment(commentId, request.userId);
     }
 };
 exports.CommentController = CommentController;
@@ -68,12 +80,41 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], CommentController.prototype, "deleteComment", null);
 __decorate([
+    (0, routing_controllers_1.Get)("/user/"),
+    (0, routing_controllers_1.UseBefore)(authMiddleware_1.AccessTokenMiddleware),
+    __param(0, (0, routing_controllers_1.QueryParam)("page")),
+    __param(1, (0, routing_controllers_1.QueryParam)("limit")),
+    __param(2, (0, routing_controllers_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, Object]),
+    __metadata("design:returntype", void 0)
+], CommentController.prototype, "getCommentsByUser", null);
+__decorate([
     (0, routing_controllers_1.Get)("/:id"),
     __param(0, (0, routing_controllers_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], CommentController.prototype, "getComment", null);
+__decorate([
+    (0, routing_controllers_1.Get)("/post/:id"),
+    __param(0, (0, routing_controllers_1.Param)("id")),
+    __param(1, (0, routing_controllers_1.QueryParam)("sort")),
+    __param(2, (0, routing_controllers_1.QueryParam)("page")),
+    __param(3, (0, routing_controllers_1.QueryParam)("limit")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, String, Number, Number]),
+    __metadata("design:returntype", void 0)
+], CommentController.prototype, "getCommentOfPost", null);
+__decorate([
+    (0, routing_controllers_1.Get)("/replies/:id"),
+    __param(0, (0, routing_controllers_1.Param)("id")),
+    __param(1, (0, routing_controllers_1.QueryParam)("page")),
+    __param(2, (0, routing_controllers_1.QueryParam)("limit")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number, Number]),
+    __metadata("design:returntype", void 0)
+], CommentController.prototype, "getRepliesOfComment", null);
 __decorate([
     (0, routing_controllers_1.Put)("/hide/:id"),
     (0, routing_controllers_1.UseBefore)(authMiddleware_1.AccessTokenMiddleware, authMiddleware_1.RoleMiddleware),
@@ -82,6 +123,15 @@ __decorate([
     __metadata("design:paramtypes", [Number]),
     __metadata("design:returntype", void 0)
 ], CommentController.prototype, "hideComment", null);
+__decorate([
+    (0, routing_controllers_1.Post)("/like/:id"),
+    (0, routing_controllers_1.UseBefore)(authMiddleware_1.AccessTokenMiddleware),
+    __param(0, (0, routing_controllers_1.Param)("id")),
+    __param(1, (0, routing_controllers_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", void 0)
+], CommentController.prototype, "handleLikeComment", null);
 exports.CommentController = CommentController = __decorate([
     (0, typedi_1.Service)(),
     (0, routing_controllers_1.JsonController)("/comment"),

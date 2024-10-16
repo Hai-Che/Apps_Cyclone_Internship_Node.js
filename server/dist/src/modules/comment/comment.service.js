@@ -25,6 +25,7 @@ exports.CommentService = void 0;
 const typedi_1 = require("typedi");
 const typeorm_1 = require("typeorm");
 const routing_controllers_1 = require("routing-controllers");
+const post_entity_1 = require("../../entities/post.entity");
 let CommentService = class CommentService {
     constructor(commentRepository, postRepository) {
         this.commentRepository = commentRepository;
@@ -130,6 +131,65 @@ let CommentService = class CommentService {
             return { rootComment, childComment };
         });
     }
+    getCommentOfPost(postId, sort, page, limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const post = yield this.postRepository.findOne({ where: { postId } });
+            if (!post || post.status !== post_entity_1.PostStatus.Published) {
+                throw new routing_controllers_1.BadRequestError("This post not available right now");
+            }
+            const skip = (page - 1) * limit;
+            let comments;
+            if (sort === "date") {
+                comments = yield this.commentRepository.find({
+                    where: { postId },
+                    order: { createdDate: "DESC" },
+                    skip,
+                    take: limit,
+                });
+            }
+            else {
+                comments = yield this.commentRepository
+                    .createQueryBuilder("comment")
+                    .where("comment.postId = :postId", { postId })
+                    .orderBy("LENGTH(comment.likes)", "DESC")
+                    .skip(skip)
+                    .take(limit)
+                    .getMany();
+            }
+            return comments.map((comment) => (Object.assign(Object.assign({}, comment), { repliesCount: comment.replies.length, likesCount: comment.likes.length })));
+        });
+    }
+    getRepliesOfComment(parentCommentId, page, limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const checkComment = yield this.commentRepository.findOne({
+                where: { id: parentCommentId },
+            });
+            if (!checkComment) {
+                throw new routing_controllers_1.BadRequestError("Comment not found");
+            }
+            if (!checkComment.replies.length) {
+                throw new routing_controllers_1.BadRequestError("Nobody reply!");
+            }
+            const skip = (page - 1) * limit;
+            return yield this.commentRepository.find({
+                where: { parentCommentId },
+                order: { createdDate: "DESC" },
+                skip,
+                take: limit,
+            });
+        });
+    }
+    getCommentsByUser(page, limit, currentUserId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const skip = (page - 1) * limit;
+            return yield this.commentRepository.find({
+                where: { userId: currentUserId },
+                order: { createdDate: "DESC" },
+                skip,
+                take: limit,
+            });
+        });
+    }
     hideComment(commentId) {
         return __awaiter(this, void 0, void 0, function* () {
             const comment = yield this.commentRepository.findOne({
@@ -139,6 +199,26 @@ let CommentService = class CommentService {
                 throw new routing_controllers_1.BadRequestError("Comment not found");
             }
             return yield this.commentRepository.update({ id: commentId }, { isHidden: !comment.isHidden });
+        });
+    }
+    handleLikeComment(commentId, currentUserId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const checkComment = yield this.commentRepository.findOne({
+                where: { id: commentId },
+            });
+            if (!checkComment) {
+                throw new routing_controllers_1.BadRequestError("Comment not found");
+            }
+            if (checkComment.likes) {
+                checkComment.likes = checkComment.likes.includes(currentUserId.toString())
+                    ? checkComment.likes.filter((item) => item != currentUserId.toString())
+                    : [...checkComment.likes, currentUserId.toString()];
+            }
+            else {
+                checkComment.likes = [currentUserId.toString()];
+            }
+            yield this.commentRepository.save(checkComment);
+            return { checkComment };
         });
     }
 };

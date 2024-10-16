@@ -151,6 +151,43 @@ let PostService = class PostService {
             });
         });
     }
+    searchPosts(keyword, page, limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const skip = (page - 1) * limit;
+            const posts = yield this.postRepository
+                .createQueryBuilder("post")
+                .where("post.title LIKE :keyword", { keyword: `%${keyword}%` })
+                .orWhere("post.tags LIKE :keyword", { keyword: `%${keyword}%` })
+                .orderBy("post.createdDate", "DESC")
+                .skip(skip)
+                .take(limit)
+                .getMany();
+            if (!posts) {
+                throw new routing_controllers_1.BadRequestError("Posts not found with your keyword");
+            }
+            return posts;
+        });
+    }
+    getPostStats() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const postViewStats = yield this.postRepository.find({
+                where: { status: post_entity_1.PostStatus.Published },
+                order: {
+                    views: "DESC",
+                },
+            });
+            const postCommentStats = yield this.postRepository.find({
+                where: { status: post_entity_1.PostStatus.Published },
+                order: {
+                    totalComments: "DESC",
+                },
+            });
+            return {
+                postViewStats,
+                postCommentStats,
+            };
+        });
+    }
 };
 exports.PostService = PostService;
 exports.PostService = PostService = __decorate([

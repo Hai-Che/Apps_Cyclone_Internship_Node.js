@@ -26,6 +26,9 @@ export class Comment {
   @Column("simple-array")
   replies: string[];
 
+  @Column("simple-array")
+  likes: string[];
+
   @Column({ default: false })
   isHidden: boolean;
 

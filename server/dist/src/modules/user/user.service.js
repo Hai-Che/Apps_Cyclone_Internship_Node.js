@@ -136,6 +136,16 @@ let UserService = class UserService {
             return { message: "User deleted successfully." };
         });
     }
+    updateProfilePicture(userId, filePath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = this.userRepository.findOne({ where: { userId } });
+            if (!user) {
+                throw new routing_controllers_1.BadRequestError("User not found");
+            }
+            yield this.userAdvanceRepository.update(userId, { profileUrl: filePath });
+            return { message: "Profile picture updated successfully" };
+        });
+    }
 };
 exports.UserService = UserService;
 exports.UserService = UserService = __decorate([

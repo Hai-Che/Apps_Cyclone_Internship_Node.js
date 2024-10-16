@@ -140,4 +140,13 @@ export class UserService {
 
     return { message: "User deleted successfully." };
   }
+
+  async updateProfilePicture(userId: number, filePath: string) {
+    const user = this.userRepository.findOne({ where: { userId } });
+    if (!user) {
+      throw new BadRequestError("User not found");
+    }
+    await this.userAdvanceRepository.update(userId, { profileUrl: filePath });
+    return { message: "Profile picture updated successfully" };
+  }
 }

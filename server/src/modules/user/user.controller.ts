@@ -12,6 +12,7 @@ import { UpdateUserDto } from "./user.dto";
 import { UserService } from "./user.service";
 import { AccessTokenMiddleware } from "../../middleware/authMiddleware";
 import { Service } from "typedi";
+import { uploadDisk } from "../../middleware/fileUploadMiddleware";
 
 @Service()
 @UseBefore(AccessTokenMiddleware)
@@ -31,5 +32,12 @@ export class UserController {
   @Delete("/:id")
   deleteUser(@Param("id") id: number, @Req() request: any) {
     return this.userService.deleteUser(id, request.userId);
+  }
+
+  @Put("/profile-picture")
+  @UseBefore(AccessTokenMiddleware, uploadDisk.single("file"))
+  async updateProfilePicture(@Req() request: any) {
+    const filePath = request.file.path;
+    return this.userService.updateProfilePicture(request.userId, filePath);
   }
 }

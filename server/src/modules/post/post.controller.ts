@@ -99,4 +99,18 @@ export class PostController {
   deletedPost(@Param("id") postId: number) {
     return this.postService.deletedPost(postId);
   }
+
+  @Get("/search")
+  searchPosts(
+    @QueryParam("keyword") keyword: string,
+    @QueryParam("page") page: number = 1,
+    @QueryParam("limit") limit: number = 10
+  ) {
+    return this.postService.searchPosts(keyword, page, limit);
+  }
+
+  @Get("/stats")
+  getPostStats() {
+    return this.postService.getPostStats();
+  }
 }

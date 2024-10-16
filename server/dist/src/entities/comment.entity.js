@@ -39,6 +39,10 @@ __decorate([
     __metadata("design:type", Array)
 ], Comment.prototype, "replies", void 0);
 __decorate([
+    (0, typeorm_1.Column)("simple-array"),
+    __metadata("design:type", Array)
+], Comment.prototype, "likes", void 0);
+__decorate([
     (0, typeorm_1.Column)({ default: false }),
     __metadata("design:type", Boolean)
 ], Comment.prototype, "isHidden", void 0);
