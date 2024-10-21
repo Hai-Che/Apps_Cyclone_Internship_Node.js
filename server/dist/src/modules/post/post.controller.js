@@ -18,6 +18,7 @@ const typedi_1 = require("typedi");
 const authMiddleware_1 = require("../../middleware/authMiddleware");
 const post_service_1 = require("./post.service");
 const post_dto_1 = require("./post.dto");
+const fileUploadMiddleware_1 = require("../../middleware/fileUploadMiddleware");
 let PostController = class PostController {
     constructor(postService) {
         this.postService = postService;
@@ -29,8 +30,7 @@ let PostController = class PostController {
         return this.postService.updatePost(postId, body, request.userId);
     }
     getPost(postId, request) {
-        const userId = request.userId ? request.userId : null;
-        return this.postService.getPost(postId, userId);
+        return this.postService.getPost(postId, request.userId);
     }
     getPostsByCategory(category, page = 1, limit = 10, request) {
         return this.postService.getPostsByCategory(category, page, limit, request.userId);
@@ -55,6 +55,10 @@ let PostController = class PostController {
     }
     getPostStats() {
         return this.postService.getPostStats();
+    }
+    uploadPostPicture(postId, request) {
+        const files = request.files;
+        return this.postService.uploadPostPicture(postId, request.userId, files);
     }
 };
 exports.PostController = PostController;
@@ -157,6 +161,15 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], PostController.prototype, "getPostStats", null);
+__decorate([
+    (0, routing_controllers_1.Post)("/upload/:id"),
+    (0, routing_controllers_1.UseBefore)(authMiddleware_1.AccessTokenMiddleware, fileUploadMiddleware_1.uploadDisk.array("files", 3)),
+    __param(0, (0, routing_controllers_1.Param)("id")),
+    __param(1, (0, routing_controllers_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", void 0)
+], PostController.prototype, "uploadPostPicture", null);
 exports.PostController = PostController = __decorate([
     (0, typedi_1.Service)(),
     (0, routing_controllers_1.JsonController)("/posts"),

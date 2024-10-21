@@ -15,17 +15,22 @@ export class PostService {
   constructor(
     @Inject("PostRepository") private postRepository: Repository<Post>
   ) {}
+  async checkPostExisted(postId: number) {
+    const post = await this.postRepository.findOne({ where: { postId } });
+    if (!post) {
+      throw new BadRequestError("Post not existed!");
+    }
+    return post;
+  }
   async createPost(body, currentUserId) {
     body.userId = currentUserId;
+    body.postImages = [];
     const newPost = await this.postRepository.save(body);
     await redisClient.set(`post:${newPost.postId}`, JSON.stringify(newPost));
     return newPost;
   }
   async updatePost(postId, body, currentUserId) {
-    const post = await this.postRepository.findOne({ where: { postId } });
-    if (!post) {
-      throw new BadRequestError("Post not existed!");
-    }
+    const post = await this.checkPostExisted(postId);
     if (post.userId !== currentUserId) {
       throw new ForbiddenError("Action denied!");
     }
@@ -36,24 +41,32 @@ export class PostService {
     await redisClient.set(`post:${postId}`, JSON.stringify(updatedPost));
     return updatedPost;
   }
-  async getPost(postId, currentUserId) {
-    const cachedPost = await redisClient.get(`post:${postId}`);
+  async getPost(postId: number, currentUserId?: number) {
+    const cacheKey = `post:${postId}`;
+    let post;
+
+    const cachedPost = await redisClient.get(cacheKey);
     if (cachedPost) {
-      const post = JSON.parse(cachedPost);
-      if (post.status !== PostStatus.Published) {
+      post = JSON.parse(cachedPost);
+    } else {
+      post = await this.postRepository.findOne({ where: { postId } });
+      if (!post) {
         throw new BadRequestError("This post not available right now");
       }
-      return post;
     }
-    const post = await this.postRepository.findOne({ where: { postId } });
-    if (!post || post.status !== PostStatus.Published) {
+
+    if (post.status !== PostStatus.Published) {
       throw new BadRequestError("This post not available right now");
     }
-    await this.postRepository.increment({ postId }, "views", 1);
-    await redisClient.set(`post:${postId}`, JSON.stringify(post));
-    if (currentUserId) {
-      await saveViewedPosts(currentUserId, postId);
-    }
+
+    post.views++;
+
+    await Promise.all([
+      this.postRepository.increment({ postId }, "views", 1),
+      redisClient.set(cacheKey, JSON.stringify(post)),
+      currentUserId && saveViewedPosts(currentUserId, postId),
+    ]);
+
     return post;
   }
 
@@ -67,8 +80,8 @@ export class PostService {
         thumbnail: true,
         author: true,
         totalComments: true,
-        // views: true,
         postId: true,
+        views: true,
       },
       skip,
       take: limit,
@@ -80,6 +93,8 @@ export class PostService {
           "views",
           1
         );
+        post.views++;
+        redisClient.set(`post:${post.postId}`, JSON.stringify(post));
         if (currentUserId) await saveViewedPosts(currentUserId, post.postId);
       })
     );
@@ -117,6 +132,21 @@ export class PostService {
   }
 
   async publishedPost(postId: number) {
+    const checkPost = await this.checkPostExisted(postId);
+    if (checkPost.status === PostStatus.Published) {
+      throw new BadRequestError("This post is already published");
+    }
+    const cacheKey = `post:${postId}`;
+    const cachedPost = await redisClient.get(cacheKey);
+    if (cachedPost) {
+      const post = JSON.parse(cachedPost);
+      if (post.status === PostStatus.Published) {
+        throw new BadRequestError("This post is already published");
+      }
+      post.status = PostStatus.Published;
+      await redisClient.set(cacheKey, JSON.stringify(post));
+    }
+
     return await this.postRepository.update(postId, {
       status: PostStatus.Published,
     });
@@ -161,5 +191,20 @@ export class PostService {
       postViewStats,
       postCommentStats,
     };
+  }
+
+  async uploadPostPicture(postId, currentUserId, files) {
+    const post = await this.checkPostExisted(postId);
+    if (post.userId !== currentUserId) {
+      throw new ForbiddenError("Action denied!");
+    }
+    if (!files.length) {
+      throw new BadRequestError("File missing!");
+    }
+    for (const file of files) {
+      post.postImages = [...post.postImages, file.path];
+    }
+    await this.postRepository.save(post);
+    return { message: "Upload load successfully!" };
   }
 }

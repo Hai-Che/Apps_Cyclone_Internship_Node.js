@@ -77,6 +77,10 @@ __decorate([
     __metadata("design:type", Number)
 ], Post.prototype, "totalComments", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: "simple-array" }),
+    __metadata("design:type", Array)
+], Post.prototype, "postImages", void 0);
+__decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], Post.prototype, "createdDate", void 0);

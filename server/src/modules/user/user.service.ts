@@ -72,7 +72,7 @@ export class UserService {
         `accessToken:${userId}:${sessionId}`,
         tokens.accessToken,
         "EX",
-        30
+        300
       );
       await redisClient.set(
         `refreshToken:${userId}:${sessionId}`,

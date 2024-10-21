@@ -44,7 +44,6 @@ let UserController = class UserController {
     updateProfilePicture(request) {
         return __awaiter(this, void 0, void 0, function* () {
             const filePath = request.file.path;
-            console.log(filePath);
             return this.userService.updateProfilePicture(request.userId, filePath);
         });
     }

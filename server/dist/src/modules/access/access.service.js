@@ -114,7 +114,7 @@ let AccessService = class AccessService {
                 throw new routing_controllers_1.BadRequestError(`User is not exist`);
             }
             const tokens = yield (0, generateObject_1.createTokenPair)({ userId, sessionId }, `${findUser.salt}at`, `${findUser.salt}rt`);
-            yield init_redis_1.default.set(`accessToken:${userId}:${sessionId}`, tokens.accessToken, "EX", 30);
+            yield init_redis_1.default.set(`accessToken:${userId}:${sessionId}`, tokens.accessToken, "EX", 300);
             yield init_redis_1.default.set(`refreshToken:${userId}:${sessionId}`, tokens.refreshToken, "EX", 300);
             return { tokens };
         });

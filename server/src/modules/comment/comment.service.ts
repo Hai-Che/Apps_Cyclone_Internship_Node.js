@@ -1,6 +1,6 @@
 import { Comment } from "../../entities/comment.entity";
 import { Inject, Service } from "typedi";
-import { IsNull, Repository } from "typeorm";
+import { In, IsNull, Repository } from "typeorm";
 import { BadRequestError, ForbiddenError } from "routing-controllers";
 import { Post, PostStatus } from "../../entities/post.entity";
 
@@ -19,11 +19,12 @@ export class CommentService {
         parentCommentId: IsNull(),
       },
     });
-    if (commentBefore) {
+    if (commentBefore && !body.parentCommentId) {
       throw new BadRequestError("You had comment this post before!");
     }
     body.userId = currentUserId;
     body.replies = [];
+    body.likes = [];
     const comment = await this.commentRepository.save(body);
     if (body.parentCommentId) {
       const parentComment = await this.commentRepository.findOne({
@@ -81,6 +82,17 @@ export class CommentService {
     if (checkComment.userId !== currentUserId) {
       throw new ForbiddenError("Action denied!");
     }
+    if (checkComment.replies.length) {
+      const replies = await this.commentRepository.find({
+        where: { id: In(checkComment.replies) },
+      });
+      await this.commentRepository.remove(replies);
+      await this.postRepository.decrement(
+        { postId: checkComment.postId },
+        "totalComments",
+        replies.length
+      );
+    }
     if (checkComment.parentCommentId) {
       const parentComment = await this.commentRepository.findOne({
         where: { id: checkComment.parentCommentId },
@@ -105,6 +117,9 @@ export class CommentService {
     const rootComment = await this.commentRepository.findOne({
       where: { id: commentId, isHidden: false },
     });
+    if (!rootComment) {
+      throw new BadRequestError("Comment not found or available!");
+    }
     const childComment = [];
     await Promise.all(
       rootComment.replies.map(async (cmt) => {

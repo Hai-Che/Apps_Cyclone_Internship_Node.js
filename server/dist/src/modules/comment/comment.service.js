@@ -40,11 +40,12 @@ let CommentService = class CommentService {
                     parentCommentId: (0, typeorm_1.IsNull)(),
                 },
             });
-            if (commentBefore) {
+            if (commentBefore && !body.parentCommentId) {
                 throw new routing_controllers_1.BadRequestError("You had comment this post before!");
             }
             body.userId = currentUserId;
             body.replies = [];
+            body.likes = [];
             const comment = yield this.commentRepository.save(body);
             if (body.parentCommentId) {
                 const parentComment = yield this.commentRepository.findOne({
@@ -101,6 +102,13 @@ let CommentService = class CommentService {
             if (checkComment.userId !== currentUserId) {
                 throw new routing_controllers_1.ForbiddenError("Action denied!");
             }
+            if (checkComment.replies.length) {
+                const replies = yield this.commentRepository.find({
+                    where: { id: (0, typeorm_1.In)(checkComment.replies) },
+                });
+                yield this.commentRepository.remove(replies);
+                yield this.postRepository.decrement({ postId: checkComment.postId }, "totalComments", replies.length);
+            }
             if (checkComment.parentCommentId) {
                 const parentComment = yield this.commentRepository.findOne({
                     where: { id: checkComment.parentCommentId },
@@ -120,6 +128,9 @@ let CommentService = class CommentService {
             const rootComment = yield this.commentRepository.findOne({
                 where: { id: commentId, isHidden: false },
             });
+            if (!rootComment) {
+                throw new routing_controllers_1.BadRequestError("Comment not found or available!");
+            }
             const childComment = [];
             yield Promise.all(rootComment.replies.map((cmt) => __awaiter(this, void 0, void 0, function* () {
                 const comment = yield this.commentRepository.findOne({

@@ -57,6 +57,9 @@ export class Post {
   @Column({ type: "int", default: 0 })
   totalComments: number;
 
+  @Column({ type: "simple-array" })
+  postImages: string[];
+
   @CreateDateColumn()
   createdDate: Date;
 

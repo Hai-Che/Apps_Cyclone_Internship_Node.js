@@ -72,7 +72,7 @@ let UserService = class UserService {
                 user.salt = salt;
                 const sessionId = (0, uuid_1.v4)();
                 tokens = yield (0, generateObject_1.createTokenPair)({ userId, sessionId }, `${salt}at`, `${salt}rt`);
-                yield init_redis_1.default.set(`accessToken:${userId}:${sessionId}`, tokens.accessToken, "EX", 30);
+                yield init_redis_1.default.set(`accessToken:${userId}:${sessionId}`, tokens.accessToken, "EX", 300);
                 yield init_redis_1.default.set(`refreshToken:${userId}:${sessionId}`, tokens.refreshToken, "EX", 300);
             }
             if (userName) {

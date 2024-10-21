@@ -35,9 +35,19 @@ let PostService = class PostService {
     constructor(postRepository) {
         this.postRepository = postRepository;
     }
+    checkPostExisted(postId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const post = yield this.postRepository.findOne({ where: { postId } });
+            if (!post) {
+                throw new routing_controllers_1.BadRequestError("Post not existed!");
+            }
+            return post;
+        });
+    }
     createPost(body, currentUserId) {
         return __awaiter(this, void 0, void 0, function* () {
             body.userId = currentUserId;
+            body.postImages = [];
             const newPost = yield this.postRepository.save(body);
             yield init_redis_1.default.set(`post:${newPost.postId}`, JSON.stringify(newPost));
             return newPost;
@@ -45,10 +55,7 @@ let PostService = class PostService {
     }
     updatePost(postId, body, currentUserId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const post = yield this.postRepository.findOne({ where: { postId } });
-            if (!post) {
-                throw new routing_controllers_1.BadRequestError("Post not existed!");
-            }
+            const post = yield this.checkPostExisted(postId);
             if (post.userId !== currentUserId) {
                 throw new routing_controllers_1.ForbiddenError("Action denied!");
             }
@@ -62,23 +69,27 @@ let PostService = class PostService {
     }
     getPost(postId, currentUserId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const cachedPost = yield init_redis_1.default.get(`post:${postId}`);
+            const cacheKey = `post:${postId}`;
+            let post;
+            const cachedPost = yield init_redis_1.default.get(cacheKey);
             if (cachedPost) {
-                const post = JSON.parse(cachedPost);
-                if (post.status !== post_entity_1.PostStatus.Published) {
+                post = JSON.parse(cachedPost);
+            }
+            else {
+                post = yield this.postRepository.findOne({ where: { postId } });
+                if (!post) {
                     throw new routing_controllers_1.BadRequestError("This post not available right now");
                 }
-                return post;
             }
-            const post = yield this.postRepository.findOne({ where: { postId } });
-            if (!post || post.status !== post_entity_1.PostStatus.Published) {
+            if (post.status !== post_entity_1.PostStatus.Published) {
                 throw new routing_controllers_1.BadRequestError("This post not available right now");
             }
-            yield this.postRepository.increment({ postId }, "views", 1);
-            yield init_redis_1.default.set(`post:${postId}`, JSON.stringify(post));
-            if (currentUserId) {
-                yield (0, post_repo_1.saveViewedPosts)(currentUserId, postId);
-            }
+            post.views++;
+            yield Promise.all([
+                this.postRepository.increment({ postId }, "views", 1),
+                init_redis_1.default.set(cacheKey, JSON.stringify(post)),
+                currentUserId && (0, post_repo_1.saveViewedPosts)(currentUserId, postId),
+            ]);
             return post;
         });
     }
@@ -93,14 +104,16 @@ let PostService = class PostService {
                     thumbnail: true,
                     author: true,
                     totalComments: true,
-                    // views: true,
                     postId: true,
+                    views: true,
                 },
                 skip,
                 take: limit,
             });
             yield Promise.all(posts.map((post) => __awaiter(this, void 0, void 0, function* () {
                 yield this.postRepository.increment({ postId: post.postId }, "views", 1);
+                post.views++;
+                init_redis_1.default.set(`post:${post.postId}`, JSON.stringify(post));
                 if (currentUserId)
                     yield (0, post_repo_1.saveViewedPosts)(currentUserId, post.postId);
             })));
@@ -139,6 +152,20 @@ let PostService = class PostService {
     }
     publishedPost(postId) {
         return __awaiter(this, void 0, void 0, function* () {
+            const checkPost = yield this.checkPostExisted(postId);
+            if (checkPost.status === post_entity_1.PostStatus.Published) {
+                throw new routing_controllers_1.BadRequestError("This post is already published");
+            }
+            const cacheKey = `post:${postId}`;
+            const cachedPost = yield init_redis_1.default.get(cacheKey);
+            if (cachedPost) {
+                const post = JSON.parse(cachedPost);
+                if (post.status === post_entity_1.PostStatus.Published) {
+                    throw new routing_controllers_1.BadRequestError("This post is already published");
+                }
+                post.status = post_entity_1.PostStatus.Published;
+                yield init_redis_1.default.set(cacheKey, JSON.stringify(post));
+            }
             return yield this.postRepository.update(postId, {
                 status: post_entity_1.PostStatus.Published,
             });
@@ -186,6 +213,22 @@ let PostService = class PostService {
                 postViewStats,
                 postCommentStats,
             };
+        });
+    }
+    uploadPostPicture(postId, currentUserId, files) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const post = yield this.checkPostExisted(postId);
+            if (post.userId !== currentUserId) {
+                throw new routing_controllers_1.ForbiddenError("Action denied!");
+            }
+            if (!files.length) {
+                throw new routing_controllers_1.BadRequestError("File missing!");
+            }
+            for (const file of files) {
+                post.postImages = [...post.postImages, file.path];
+            }
+            yield this.postRepository.save(post);
+            return { message: "Upload load successfully!" };
         });
     }
 };

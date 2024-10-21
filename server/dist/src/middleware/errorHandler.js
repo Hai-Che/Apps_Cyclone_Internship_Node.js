@@ -9,21 +9,49 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.HttpErrorHandler = void 0;
 const routing_controllers_1 = require("routing-controllers");
 const typedi_1 = require("typedi");
+// import { ValidationError } from "class-validator";
 let HttpErrorHandler = class HttpErrorHandler {
     error(error, request, response, next) {
+        let statusCode = 500;
+        let errorMessage = "Internal Server Error";
+        let errorDetails = null;
         if (error instanceof routing_controllers_1.HttpError) {
-            response.status(error.httpCode).json({
-                status: error.httpCode,
-                message: error.message,
-            });
+            statusCode = error.httpCode;
+            errorMessage = error.message;
+            const httpErrorWithErrors = error;
+            if (httpErrorWithErrors.errors &&
+                Array.isArray(httpErrorWithErrors.errors)) {
+                statusCode = 400;
+                errorMessage = "Validation Error";
+                errorDetails = this.formatValidationErrors(httpErrorWithErrors.errors);
+            }
         }
-        else {
-            response.status(500).json({
-                status: 500,
-                message: "Internal Server Error",
-            });
+        else if (error instanceof Error) {
+            errorMessage = error.message;
         }
+        const errorResponse = {
+            status: statusCode,
+            message: errorMessage,
+            details: errorDetails,
+            timestamp: new Date().toISOString(),
+            path: request.path,
+        };
+        response.status(statusCode).json(errorResponse);
         next(error);
+    }
+    formatValidationErrors(errors) {
+        return errors.reduce((acc, error) => {
+            if (error.constraints) {
+                acc[error.property] = Object.values(error.constraints);
+            }
+            if (error.children && error.children.length > 0) {
+                const childErrors = this.formatValidationErrors(error.children);
+                if (Object.keys(childErrors).length > 0) {
+                    acc[error.property] = childErrors;
+                }
+            }
+            return acc;
+        }, {});
     }
 };
 exports.HttpErrorHandler = HttpErrorHandler;

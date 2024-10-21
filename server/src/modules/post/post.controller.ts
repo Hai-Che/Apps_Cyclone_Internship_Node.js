@@ -17,6 +17,7 @@ import {
 } from "../../middleware/authMiddleware";
 import { PostService } from "./post.service";
 import { CreatePostDto, UpdatePostDto } from "./post.dto";
+import { uploadDisk } from "../../middleware/fileUploadMiddleware";
 
 @Service()
 @JsonController("/posts")
@@ -42,8 +43,7 @@ export class PostController {
   @Get("/detail/:id")
   @UseBefore(GuestCheckMiddleware)
   getPost(@Param("id") postId: number, @Req() request: any) {
-    const userId = request.userId ? request.userId : null;
-    return this.postService.getPost(postId, userId);
+    return this.postService.getPost(postId, request.userId);
   }
 
   @Get("/category/:category")
@@ -112,5 +112,12 @@ export class PostController {
   @Get("/stats")
   getPostStats() {
     return this.postService.getPostStats();
+  }
+
+  @Post("/upload/:id")
+  @UseBefore(AccessTokenMiddleware, uploadDisk.array("files", 3))
+  uploadPostPicture(@Param("id") postId: number, @Req() request: any) {
+    const files = request.files;
+    return this.postService.uploadPostPicture(postId, request.userId, files);
   }
 }

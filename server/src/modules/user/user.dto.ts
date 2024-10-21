@@ -57,7 +57,7 @@ export class UpdateUserDto {
   @IsNotEmpty()
   userId: number;
 
-  @IsNotEmpty()
+  @IsOptional()
   @MaxLength(32)
   @Matches(RegExp("^[a-zA-Z0-9]{6,}$"))
   userName: string;
@@ -81,6 +81,7 @@ export class UpdateUserDto {
   @Matches(RegExp("^[a-zA-Zs]{6,64}$"))
   fullName: string;
 
+  @IsOptional()
   @IsEmail()
   @Matches(RegExp(/[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}/gim))
   email: string;

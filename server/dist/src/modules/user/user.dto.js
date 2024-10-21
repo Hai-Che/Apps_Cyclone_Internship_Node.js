@@ -73,7 +73,7 @@ __decorate([
     __metadata("design:type", Number)
 ], UpdateUserDto.prototype, "userId", void 0);
 __decorate([
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.MaxLength)(32),
     (0, class_validator_1.Matches)(RegExp("^[a-zA-Z0-9]{6,}$")),
     __metadata("design:type", String)
@@ -102,6 +102,7 @@ __decorate([
     __metadata("design:type", String)
 ], UpdateUserDto.prototype, "fullName", void 0);
 __decorate([
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.Matches)(RegExp(/[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}/gim)),
     __metadata("design:type", String)
